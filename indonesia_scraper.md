@@ -1,8 +1,8 @@
 ## Using RSelenium to scrape the web for court cases in Indonesia
 
-This is a project I'm working on for a journalist friend who investigates environmental justice issues in Southeast Asia. One such issue relates to prosecutions of smallholder farmers in Indonesia. Indonesia has a major problem with air pollution, and in particular smoky haze, which blankets parts of Southeast Asia each year. Much of this haze originates in Indonesia, especially on the island of Sumatra, and then wafts across the Malacca Strait to Malaysia and Singapore; the haze has been a source of international diplomatic tension in the region.
+This is a project I'm working on for a journalist friend who investigates environmental justice issues in Southeast Asia. One such issue relates to prosecutions of smallholder farmers in Indonesia. Indonesia has a major problem with air pollution, and in particular smoky haze, which blankets parts of Southeast Asia each year. Much of this haze originates in Indonesia, especially on the island of Sumatra, and then wafts across the Malacca Strait to Malaysia and Singapore; the haze is a source of diplomatic tension in the region, as well as a major health hazard.
 
-The source of this haze, in part, is deliberate burning to clear land area in Sumatra. It is true that small farmers in Sumatra have practiced swidden agriculture for generations, but the major palm oil producers based in Indonesia also use these tactics on a larger scale to make space for expanding their plantations. Nevertheless, the Indonesian judiciary continues to prosecute small farmers for burning land, while palm oil concerns go largely unpunished.
+The source of this haze, in part, is deliberate burning to clear land area in Sumatra. It is true that small farmers in Sumatra have practiced swidden agriculture for generations, but the large palm oil producers based in Indonesia also use these tactics on a larger scale to make space for expanding their plantations. Nevertheless, the Indonesian judiciary continues to prosecute small farmers for burning land, while palm oil concerns go largely unpunished.
 
 
 
