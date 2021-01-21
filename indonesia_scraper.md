@@ -1,8 +1,10 @@
-## Scraping the web for execution announcements in Saudi Arabia
+## Using RSelenium to scrape the web for court cases in Indonesia
 
-Saudi Arabia executes dozens of people each year; the Kingdom is usually among the top three executing states in the world. Many of these executions are carried out for non-violent offences, and the trials leading to executions in Saudi Arabia consistently fail to meet international minimum standards for fair trial protections. The rapid pace of executions in Saudi Arabia makes it difficult for human rights defenders to keep track of who is killed by the Kingdom's government. Moreover, the Saudi government does not disseminate any kind of codified database detailing who is executed and when. News of executions is instead published by the state-run Saudi Press Agency (SPA).<br/>
+This is a project I'm working on for a journalist friend who investigates environmental justice issues in Southeast Asia. One such issue relates to prosecutions of smallholder farmers in Indonesia. Indonesia has a major problem with air pollution, and in particular smoky haze, which blankets parts of Southeast Asia each year. Much of this haze originates in Indonesia, especially on the island of Sumatra, and then wafts across the Malacca Strait to Malaysia and Singapore; the haze has been a source of international diplomatic tension in the region.
 
-Each time the Kingdom carries out an execution, the SPA publishes an article announcing the execution; these articles are buried among hundreds more mundane pieces on the SPA website. This means that the only way for human rights organizations and activists to reliably track and document all executions in Saudi Arabia is to sift through huge numbers of links on the SPA website, searching for information about executions. I wanted to automate this process, using rvest to crawl through the SPA website and return URLs only for execution announcements.
+The source of this haze, in part, is deliberate burning to clear land area in Sumatra. It is true that small farmers in Sumatra have practiced swidden agriculture for generations, but the major palm oil producers based in Indonesia also use these tactics on a larger scale to make space for expanding their plantations. Nevertheless, the Indonesian judiciary continues to prosecute small farmers for burning land, while palm oil concerns go largely unpunished.
+
+
 
 ### Determining search terms
 
