@@ -2,18 +2,24 @@
 
 ---
 
-### Category Name 1 
-
-[Project 1 Title](/sample_page)
-<img src="images/dummy_thumbnail.jpg?raw=true"/>
+### [Web scraping for news of Saudi executions with rvest](/ksa_scraper)
+<img src="images/SPA-screenshot.png?raw=true"/>
 
 ---
-[Project 2 Title](/pdf/sample_presentation.pdf)
-<img src="images/dummy_thumbnail.jpg?raw=true"/>
+
+### [Radar charts with fmsb: Egypt and Saudi Arabia](/radar-charts-egypt-ksa)
+<img src="images/egypt-radar-screengrab.png?raw=true"/>
 
 ---
-[Project 3 Title](http://example.com/)
-<img src="images/dummy_thumbnail.jpg?raw=true"/>
+
+
+### [The Egypt Death Penalty Index](/EDPI)
+<img src="images/EDPI-screenshot.png?raw=true"/>
+
+---
+
+### [Polar charts with ggplot2: Saudi Arabia](/ksa_polar)
+<img src="images/ksa-polar-screenshot.png?raw=true"/>
 
 ---
 
@@ -31,5 +37,3 @@
 
 
 ---
-<p style="font-size:11px">Page template forked from <a href="https://github.com/evanca/quick-portfolio">evanca</a></p>
-<!-- Remove above link if you don't want to attibute -->
