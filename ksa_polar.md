@@ -14,12 +14,7 @@ library(gridExtra)
 library(grid)
 library(cowplot)
 
-[//]: # Reading in the data from .csv file. This .csv contains 3000+ rows, each of which contains information on a discrete individual sentenced to death by an Egyptian court between 2011 and 2018
-EDPI <- read.csv ("egypt_individuals_csv.csv", header=TRUE, sep=",", stringsAsFactors=FALSE)
-
-
-
-[//]: # Reading in the data
+[//]: # Reading in the data from .csv file. This .csv contains 700+ rows, each of which contains information on a discrete individual executed in Saudi Arabia between 2014 and 2019
 KSA <- read.csv ("KSA_individuals_csv.csv", header=TRUE, sep=",")
 
 [//]: # Converting KSA date column to date type
