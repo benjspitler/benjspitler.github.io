@@ -8,10 +8,15 @@ Information regarding the prosecution of farmers for burning is posted on a seri
 
 <img src="images/indo_search_screenshot.png?raw=true"/>
 
+Compared to the data disclosure practices of governments in other parts of the world where I have worked (especially the Middle East), the Indonesian government's approach isn't terrible. When you navigate to a court website, you can search for a term and return an organized table that summarizes all of the search results and provides links for more detail. That said, there are still quite a few barriers here to easily extracting and processing real time data about court cases. For one thing, these results tables are not downloadable in any kind of PDF or Excel file format; they're just static HTML pages. Additionally, there's no filtering functionality, so the only way to access results is through keyword search. As a result journalists and rights activists documenting prosecutions of small farmers spend a lot of time on these websites, entering search terms, scrolling through results, and manualy entering data. I wanted to automate this process so they always have an up-to-date database showing the current state of these court cases.
 
-### Determining search terms
+### Scraping packages
 
-There is no "executions" tag on the SPA website, so we need to use a search term that will return all execution announcements. The search term I chose is the Arabic word "حكم", which means "judgement" or "verdict". All SPA execution announcement headlines include the phrase "تنفيذ حكم", which means "implementation of verdict", so a search for "حكم" should return all execution announcements:
+Prior to starting this project, I had only done webscraping [through the rvest package](https://benjspitler.github.io/ksa_scraper). This project is a bit more complex, because the search results on these court websites are dynamically retrieved with javascript. This means that when you perform a search, the page URL itself does not change, so you can't enter a search results-specific URL and just scrape that page. Instead, I used the RSelenium package, which essentially allows you to run a dummy browser within an R session. This has applications not only in web scraping, but also in software testing. For web scraping purposes, you can actually use R code to direct your R session to open a browser, enter a search term, click the search button, and download the HTML from the dynamically-retrieved results page, even though the URL never changes. Then you can use rvest to actually scrape the contents of the HTML. Pretty cool!
+
+### Search strategy
+
+The full code for this project is below, but I'll offer a description here of how I chose search terms, and which court website I am searching. In the screenshot above, you see a table with a number of columns, one of which is titled "
 
 <img src="images/spa-search-screenshot.png?raw=true"/>
 
