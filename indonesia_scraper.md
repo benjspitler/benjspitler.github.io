@@ -16,9 +16,10 @@ Prior to starting this project, I had only done webscraping [through the rvest p
 
 ### Search strategy
 
-The full code for this project is below, but I'll offer a description here of how I chose search terms, and which court website I am searching. In the screenshot above, you see a table with a number of columns, one of which is titled "
+The full code for this project is below, but I'll offer a description here of how I chose search terms, and which court website I am searching. In the screenshot above, you see a table with a number of columns, one of which is titled "Klasifikasi Perkara", which means "Case Classification." There are two principal case classifications pertaining to land burning cases: "Kebakaran Hutan", which means "Forest Burning", and "Hal-hal yang mengakibatkan kerusakan dan pencemaran lingkungan", which means "Causing damage and enviromental pollution". These two case classifications are the search terms used to narrow search results to land burning cases.
 
-<img src="images/spa-search-screenshot.png?raw=true"/>
+Another wrinkle is that, as stated above, each district court has its own separate website, and there are hundreds of such districts in Indonesia. Land burning cases are mostly concentrated in Sumatra and Borneo, but you still need to examine 27 websites to find all relevant results. So the script below is an example that crawls one court website (for the Pangkalan Bun district) for results for the "Kebakaran Hutan" search term. I'm still working on how exactly to make this script to scrape all 27 websites for both search terms sequentially. For now though, this script allows for the easy extraction of relevant case information from any court website through the manipulations of small bits of text within the R code.
+
 
 
 ### Determining filtering terms
