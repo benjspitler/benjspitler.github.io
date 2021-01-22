@@ -3,7 +3,7 @@
 ---
 
 ### [Web scraping for court cases in Indonesia with RSelenium](/indonesia_scraper)
-<img src="images/SPA-screenshot.png?raw=true"/>
+<img src="images/indon_search_screenshot.png?raw=true"/>
 
 ---
 
