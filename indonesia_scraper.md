@@ -6,6 +6,9 @@ The source of this haze, in part, is deliberate burning to clear land area in Su
 
 Information regarding the prosecution of farmers for burning is posted on a series of websites hosted by Indonesia's judiciary; each website pertains to a different federal district of Indonesia, and lists prosecutions and court cases for that district:
 
+<img src="images/indo-search-screenshot.png?raw=true"/>
+
+
 ### Determining search terms
 
 There is no "executions" tag on the SPA website, so we need to use a search term that will return all execution announcements. The search term I chose is the Arabic word "حكم", which means "judgement" or "verdict". All SPA execution announcement headlines include the phrase "تنفيذ حكم", which means "implementation of verdict", so a search for "حكم" should return all execution announcements:
