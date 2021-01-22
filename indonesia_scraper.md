@@ -6,7 +6,7 @@ The source of this haze, in part, is deliberate burning to clear land area in Su
 
 Information regarding the prosecution of farmers for burning is posted on a series of websites hosted by Indonesia's judiciary; each website pertains to a different federal district of Indonesia, and lists prosecutions and court cases for that district:
 
-<img src="images/indo-search-screenshot.png?raw=true"/>
+<img src="images/indo_search_screenshot.png?raw=true"/>
 
 
 ### Determining search terms
