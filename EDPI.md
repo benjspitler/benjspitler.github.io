@@ -12,12 +12,10 @@ In the course of my work on individual cases, it became problematic that there d
 
 **Data collection and verification**: Data for this project was collected through a variety of sources. As above, wherever possible we relied on original court documents, as these provide the most reliable information about death sentences. That said, there are hundreds of trials represented in the Index, and court documents were not available for all of them. Where we could not locate court documents, we relied on media reports (especially those that directly quoted court archives), contact with relevant lawyers, and information provided by leading Egyptian human rights organizations. We made every effort to cross-verify all data points with at least two kinds of sources, and each row of data includes a column indicating which types of sources were used to verify it.
 
-**Data analysis**: This entire project was completed in Excel.
+**Data analysis**: This entire project was completed in Excel. DESCRIPTION TO BE COMPLETED FROM HERE.
 
 
 ### Data set
-
-From there, we need to find a way to filter the larger set of search results whose headlines contain the word "حكم" into a smaller subset that contains exclusively execution announcements. I chose the word "تنفيذ" itself, as that seems to be present only in execution announcement headlines. 
 
 
 ### Analysis
