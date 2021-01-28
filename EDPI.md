@@ -21,6 +21,8 @@ This was sufficient for the data's first incarnation. Through pivot tables and r
 
 The second incarnation of the data is more sophisticated. The data is now stored in a .csv file, which looks like this:
 
+<img src="images/EDPI-csv-screenshot.png?raw=true"/>
+
 
 I chose to include the Index in this portfolio partly because it is a strong example of the type of data-centric approach that is sorely needed in the human rights investigations field, but also because this is the project that most inspired me to go back to school to learn R and Python in order to take on more complex data-driven human rights investigations.
 
