@@ -13,10 +13,11 @@ Collecting data for this project was complex. We documented death sentences thro
 
 
 ### Data Organization and Analysis
-This entire project was completed in Excel. By the time I undertook this project, I had become quite proficient in using Excel to organize data and perform statistical analysis, but I had DESCRIPTION TO BE COMPLETED FROM HERE.
+This entire project was completed in Excel. By the time I undertook this project, I had become quite proficient in using Excel to organize data and perform statistical analysis, but I had yet to learn how to use R or Python. I chose to include the Index in this portfolio partly because it is a strong example of the type of data-centric approach that is sorely needed in the human rights investigations field, but also because this is the project that most inspired me to go back to school to learn R and Python in order to take on more complex data-driven human rights investigations.
 
+The dataset, which is available to the public in its raw form [here](https://egyptdeathpenaltyindex.com/download-data), 
 
-### Data set
+### Impact
 
 
 ### Analysis
