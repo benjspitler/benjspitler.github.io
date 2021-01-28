@@ -18,9 +18,9 @@ Initially this project existed entirely in the form of an Excel spreadsheet. Whe
 
 <img src="images/EDPI-data-screenshot.png?raw=true"/>
 
-This was sufficient for the data's first incarnation. Through pivot tables and relatively simple Excel functions, we were able to extract statistical observations about Egypt's application of the death penalty. This included novel observations related to geographic distribution of death sentences, mass trials as tools of political repression, and the especially distrubing trend of children being sentenced to death in Egyptian courts.
+This was sufficient for the data's first incarnation. Through pivot tables and relatively simple Excel functions, we were able to extract statistical observations about Egypt's application of the death penalty. This included novel observations related to geographic distribution of death sentences, mass trials as tools of political repression, and the especially disturbing trend of children being sentenced to death in Egyptian courts.
 
-The second incarnation of the data is more sophisticated. The data is now stored in a .csv file, which looks like this:
+Later in the life of the project, the data was reformulated into a .csv file, which looks like this:
 
 <img src="images/EDPI-csv-screenshot.png?raw=true"/>
 
@@ -29,9 +29,12 @@ Now, R is used to extract insights from the dataset, and the project no longer d
 
 ### Website
 
-The idea behind the Index was not only to collect this data and build a dataset, but also to create an intuitive website that would allow human rights activists, journalists, policymakers, and the general public to interact with the data and understand key insights. The [Egypt Death Penalty Index website](https://egyptdeathpenaltyindex.com/) reproduces the underlying dataset in an easily navigable web interface where users can view, filter, and sort data regarding both individual defendants in death penalty cases and also capital trials that have led to death sentences:
+The idea behind the Index was not only to collect this data and build a dataset, but also to create an intuitive website that would allow human rights activists, journalists, policymakers, and the general public to interact with the data and understand key insights. The [Egypt Death Penalty Index website](https://egyptdeathpenaltyindex.com/) reproduces the underlying dataset in an easily navigable web interface where users can [view, search through, filter, and sort data](https://egyptdeathpenaltyindex.com/index/) regarding individual defendants in death penalty cases or capital trials that have led to death sentences:
 
-The data is available to the public in its raw form [here](https://egyptdeathpenaltyindex.com/download-data), and the layout looks like this:
+<img src="images/EDPI-defendants-screenshot.png?raw=true"/>
+
+The data is also available to the public for download in its [raw form](https://egyptdeathpenaltyindex.com/download-data).
+
 
 ### Insights
 
