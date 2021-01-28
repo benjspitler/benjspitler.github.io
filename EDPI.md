@@ -38,8 +38,12 @@ The data is available to the public for download in its [raw form](https://egypt
 
 ### Insights
 
-The concentration of this data in one location allowed us to pull out a number of hitherto unknown facts about Egypt's application of the death penalty:
-- 
+The concentration of this data in one location allowed us to pull out a number of hitherto unknown facts about Egypt's application of the death penalty. Since 2011, Egypt has:
+
+- Handed down preliminary death sentences to at least **17 children**
+- Handed down more than **2,300 preliminary death sentences** overall
+- Handed down **1,670** confirmed death sentences
+- Executed **226 people**
 
 ### Impact
 
