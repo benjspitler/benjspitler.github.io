@@ -1,6 +1,6 @@
 ## The Egypt Death Penalty Index
 
-The Egypt Death Penalty Index is a project that I designed and executed while working for the British human rights organization [Reprieve](https://reprieve.org/uk/). Since the ascension to power of current President Abdel Fattah el-Sisi in early July 2013, Egyptian courts have handed down thousands of preliminary death sentences. (In criminal court proceedings in Egypt, a court must first "recommend" a death sentence, and then decide whether to "confirm" that sentence following a period of consideration). With Reprieve, I investigated the cases of individuals facing unlawful execution in Egypt; I worked primarily on behalf of peaceful protestors and children sentenced to death in patently unfair trials.
+The Egypt Death Penalty Index is a project that I designed and executed while working for the British human rights organization [Reprieve](https://reprieve.org/uk/). Since the ascension to power of current President Abdel Fattah el-Sisi in early July 2013, Egyptian courts have handed down thousands of death sentences. With Reprieve, I investigated the cases of individuals facing unlawful execution in Egypt; I worked primarily on behalf of peaceful protestors and children sentenced to death in patently unfair trials.
 
 In the course of my work on individual cases, it became problematic that there did not exist anywhere in the world a single, codified database tracking all of those on Egypt's death row. It was understandable why that resource didn't exist--it would need to include detailed information about thousands of individuals, and building it would require considerable resources. That sounded like a challenge we could meet, so I set out to build it. With funding from the German Federal Foreign Office, I spent more than a year working with a team of researchers and lawyers based in both London and Cairo. We fanned out across Egypt, collected and digitized paper court judgments, conducted interviews with victims and their family members, and built the world's first comprehensive database tracking Egypt's massive, unlawful application of the death penalty: the [Egypt Death Penalty Index](https://egyptdeathpenaltyindex.com).
 
@@ -23,14 +23,12 @@ The second incarnation of the data is more sophisticated. The data is now stored
 
 <img src="images/EDPI-csv-screenshot.png?raw=true"/>
 
-
-I chose to include the Index in this portfolio partly because it is a strong example of the type of data-centric approach that is sorely needed in the human rights investigations field, but also because this is the project that most inspired me to go back to school to learn R and Python in order to take on more complex data-driven human rights investigations.
-
-The raw dataset is available to the public in its raw form [here](https://egyptdeathpenaltyindex.com/download-data), and the layout looks like this:
-
+Now, R is used to extract insights from the dataset, and the project no longer depends on analysis taking place within Excel. 
 
 
 ### Website
+
+The raw dataset is available to the public in its raw form [here](https://egyptdeathpenaltyindex.com/download-data), and the layout looks like this:
 
 
 ### Impact
