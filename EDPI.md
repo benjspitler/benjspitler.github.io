@@ -44,9 +44,12 @@ The concentration of this data in one location allowed us to pull out a number o
 - Handed down more than **2,300 preliminary death sentences** overall
 - Handed down **1,670** confirmed death sentences
 - Executed **226 people**
+- Handed down **190 preliminary death sentences** in military tribunals
 
 ### Impact
 
-This database is the first of its kind. size of Egypt's death penalty crisis over the past eight years is such that 
+This database is the first of its kind; little of this information was known before the creation of the Index. Everyone knew that the Egyptian government was sentencing shocking numbers of people to death, but the crisis was so large that it was impossible to say just how many people were affected. This project made that possible for the first time, and we saw immediate results in our advocacy. Prior to the creation of the Index, when I lobbied senior officials at the UN or the EU to intervene in death penalty cases, they would ask for data regarding Egypt's overall application of the death penalty, and I couldn't provide it. Once we created the Index, I was able to contextualize individual death penalty cases with hard numbers, making concrete the horrible reality of Egypt's death penalty crisis.
 
-### Analysis
+This paid dividends. It made our advocacy more compelling and led to a number of policy wins for the organization. The biggest impact came in our work on the cases of juveniles sentenced to death. We had been telling policymakers and government officials for years that Egypt was sentencing children to death, while the Egyptian government denied the claim. The data emerging from the Index allowed us to show that Egypt had handed preliminary death sentences to more than two dozen children, despite the existence of both international and Egyptian law forbidding the practice. This helped us identify the specific legal loophole allowing this to take place, and make tangible progress in engineering international political pressure on Egypt to close it.
+
+This project is a great example of the kind of data-forward work that is sorely needed in the human rights investigations field. Egypt's repressive government, a serial violator of international human rights law, has a vested interest in ensuring that reliable data regarding its violations is not available to the public. There is no centralized government database regarding death sentences or executions; the government doesn't even publish press releases about these issues. Where data that should be public and open is instead hidden by powerful interests, human rights defenders need to know how to find that data and bring it to light.
