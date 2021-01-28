@@ -13,6 +13,7 @@ Collecting data for this project was complex. We documented death sentences thro
 
 
 ### Data Organization and Analysis
+
 Initially this project existed entirely in the form of an Excel spreadsheet. When we first started working on the Index, I was quite proficient in using Excel to organize data and perform statistical analysis, but I was still a beginner in R and Python. As such, the dataset's initial form was an Excel sheet that looked like this:
 
 <img src="images/EDPI-data-screenshot.png?raw=true"/>
@@ -28,8 +29,11 @@ Now, R is used to extract insights from the dataset, and the project no longer d
 
 ### Website
 
-THis 
-The raw dataset is available to the public in its raw form [here](https://egyptdeathpenaltyindex.com/download-data), and the layout looks like this:
+The idea behind the Index was not only to collect this data and build a dataset, but also to create an intuitive website that would allow human rights activists, journalists, policymakers, and the general public to interact with the data and understand key insights. The [Egypt Death Penalty Index website](https://egyptdeathpenaltyindex.com/) reproduces the underlying dataset in an easily navigable web interface where users can view, filter, and sort data regarding both individual defendants in death penalty cases and also capital trials that have led to death sentences:
+
+The data is available to the public in its raw form [here](https://egyptdeathpenaltyindex.com/download-data), and the layout looks like this:
+
+### Insights
 
 
 ### Impact
