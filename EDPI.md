@@ -29,17 +29,20 @@ Now, R is used to extract insights from the dataset, and the project no longer d
 
 ### Website
 
-The idea behind the Index was not only to collect this data and build a dataset, but also to create an intuitive website that would allow human rights activists, journalists, policymakers, and the general public to interact with the data and understand key insights. The [Egypt Death Penalty Index website](https://egyptdeathpenaltyindex.com/) reproduces the underlying dataset in an easily navigable web interface where users can [view, search through, filter, and sort data](https://egyptdeathpenaltyindex.com/index/) regarding individual defendants in death penalty cases or capital trials that have led to death sentences:
+The idea behind the Index was not only to collect this data and build a dataset, but also to create an intuitive website that would allow human rights activists, journalists, policymakers, and the general public to interact with the data and understand key insights. The Egypt Death Penalty Index website reproduces the underlying dataset in an easily navigable web interface where users can [view, search through, filter, and sort data](https://egyptdeathpenaltyindex.com/index/) regarding individual defendants in death penalty cases or capital trials that have led to death sentences:
 
 <img src="images/EDPI-defendants-screenshot.png?raw=true"/>
 
-The data is also available to the public for download in its [raw form](https://egyptdeathpenaltyindex.com/download-data).
+The data is available to the public for download in its [raw form](https://egyptdeathpenaltyindex.com/download-data), and users can also access [digital copies of the original court documents we collected](https://egyptdeathpenaltyindex.com/documents/).
 
 
 ### Insights
 
+The concentration of this data in one location allowed us to pull out a number of hitherto unknown facts about Egypt's application of the death penalty:
+- 
 
 ### Impact
 
+This database is the first of its kind. size of Egypt's death penalty crisis over the past eight years is such that 
 
 ### Analysis
