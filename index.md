@@ -18,7 +18,7 @@
 ---
 
 ### [The Egypt Death Penalty Index](/EDPI)
-<img src="images/EDPI-screenshot.png?raw=true"/>
+<img src="images/new-EDPI-screenshot.png?raw=true"/>
 
 ---
 
