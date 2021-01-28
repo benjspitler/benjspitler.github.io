@@ -13,9 +13,23 @@ Collecting data for this project was complex. We documented death sentences thro
 
 
 ### Data Organization and Analysis
-This entire project was completed in Excel. By the time I undertook this project, I had become quite proficient in using Excel to organize data and perform statistical analysis, but I had yet to learn how to use R or Python. I chose to include the Index in this portfolio partly because it is a strong example of the type of data-centric approach that is sorely needed in the human rights investigations field, but also because this is the project that most inspired me to go back to school to learn R and Python in order to take on more complex data-driven human rights investigations.
+Initially this project existed entirely in the form of an Excel spreadsheet. When we first started working on the Index, I was quite proficient in using Excel to organize data and perform statistical analysis, but I was still a beginner in R and Python. As such, the dataset's initial form was an Excel sheet that looked like this:
 
-The dataset, which is available to the public in its raw form [here](https://egyptdeathpenaltyindex.com/download-data), 
+<img src="images/EDPI-data-screenshot.png?raw=true"/>
+
+This was sufficient for the data's first incarnation. Through pivot tables and relatively simple Excel functions, we were able to extract statistical observations about Egypt's application of the death penalty. This included novel observations related to geographic distribution of death sentences, mass trials as tools of political repression, and the especially distrubing trend of children being sentenced to death in Egyptian courts.
+
+The second incarnation of the data is more sophisticated. The data is now stored in a .csv file, which looks like this:
+
+
+I chose to include the Index in this portfolio partly because it is a strong example of the type of data-centric approach that is sorely needed in the human rights investigations field, but also because this is the project that most inspired me to go back to school to learn R and Python in order to take on more complex data-driven human rights investigations.
+
+The raw dataset is available to the public in its raw form [here](https://egyptdeathpenaltyindex.com/download-data), and the layout looks like this:
+
+
+
+### Website
+
 
 ### Impact
 
