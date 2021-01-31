@@ -1,8 +1,8 @@
 ## Using cartopy to map  death sentences in Egypt and executions in Saudi Arabia
 
-### Maps of preliminary death sentences in Egypt by month
+### Maps of preliminary death sentences in Egypt
 
-Here, I used Python's cartopy package, along with matplotlib, to map the governorates where more and less preliminary death sentences were handed down:
+Here, I used Python's cartopy package, along with matplotlib, to map the governorates where more and less preliminary death sentences were handed down between 2011 and 2018:
 
 <img src="images/egypt-prelim-map.png?raw=true"/>
 
