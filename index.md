@@ -22,6 +22,12 @@
 
 ---
 
+
+### [Mapping preliminary death sentences in Egypt with cartopy](/egypt-cartopy)
+<img src="images/egypt-prelim-map.png?raw=true"/>
+
+---
+
 ### [Polar charts with ggplot2: Saudi Arabia](/ksa_polar)
 <img src="images/ksa-polar-screenshot.png?raw=true"/>
 
