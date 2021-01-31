@@ -2,7 +2,7 @@
 
 ### Maps of preliminary death sentences in Egypt by month
 
-Here, I used Python's cartopy package, along with matplotlib, to create maps indicating the governorates where more and less preliminary death sentences were handed down:
+Here, I used Python's cartopy package, along with matplotlib, to map the governorates where more and less preliminary death sentences were handed down:
 
 <img src="images/egypt-prelim-map.png?raw=true"/>
 
