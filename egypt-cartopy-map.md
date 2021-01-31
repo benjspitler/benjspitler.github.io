@@ -11,8 +11,7 @@ In the governorates where more death sentences occurred, the data points are lar
 The code for this viz looks like this:
 
 ```javascript
-[//]: # Map import statements
-
+[//]: # Import statements
 import pandas as pd
 import matplotlib.pyplot as plt
 plt.style.use('classic')
