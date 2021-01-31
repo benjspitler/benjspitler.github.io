@@ -1,4 +1,4 @@
-## Using cartopy in Python to map preliminary death sentences in Egypt (2011-2018) and executions in Saudi Arabia (2014-2019)
+## Using cartopy to map  death sentences in Egypt and executions in Saudi Arabia
 
 ### Maps of preliminary death sentences in Egypt by month
 
