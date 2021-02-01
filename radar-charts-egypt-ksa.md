@@ -504,7 +504,7 @@ mtext("Monthly Executions in Saudia Arabia: 2014-2019", side = 3, line = 2, oute
 
 ### Radar charts of executions in Saudi Arabia by day
 
-Finally, I plotted daily executions in Saudi Arabia by day. As with the Egypt example, the outer limit of the axes on these charts is 1, sow the charts show you which periods of which years had zero executions, which had one execution, and which had more than one execution As such, we can see the extent to which death sentences were evenly distributed throughout a given year, and where there were gaps.
+Finally, I plotted daily executions in Saudi Arabia by day. As with the Egypt example, the outer limit of the axes on these charts is 1, so the charts show you which periods of which years had zero executions, which had one execution, and which had more than one execution. As such, we can see the extent to which death sentences were evenly distributed throughout a given year, and where there were gaps.
 
 <img src="images/ksa-radar-chart-daily.png?raw=true"/>
 
