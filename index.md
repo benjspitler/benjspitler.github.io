@@ -7,7 +7,7 @@
 
 ---
 
-### [Using cartopy to map death sentences in Egypt and executions in Saudi Arabia](/egypt-ksa-cartopy)
+### [Using cartopy to map death sentences in Egypt](/egypt-cartopy)
 <img src="images/egypt-prelim-map.png?raw=true"/>
 
 ---
