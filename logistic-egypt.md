@@ -1,6 +1,12 @@
-## Using logistic regressions in R to predict capital trial outcomes in Egypt
+## Using logistic regressions in R to predict executions in Egypt
 
-As discussed elsewhere in this portfolio, my prior human rights work with Reprieve involved the creation of a comprehensive database tracking all known capital trials in Egypt since 2013, and many from before then as well. 
+As discussed elsewhere in this portfolio, my prior human rights work with [Reprieve](https://reprieve.org/uk/) involved the creation of the [Egypt Death Penalty Index](https://egyptdeathpenaltyindex.com) (EDPI), a comprehensive database tracking all known capital trials in Egypt since 2013, and many from before then as well. The resulting data provides an important real-time view into the Egyptian government's application of capital punishment. The database allows human rights defenders to examine ongoing capital trials and identify individuals in need of legal assistance, which is largely how the EDPI has been used to date.
+
+But given that the EDPI contains such rich historical information on hundreds of capital trials, it occurred to me that this information could also serve as valuable raw material for statistical analysis that might allow us to predict the outcomes of capital trials based on their characteristics. Specifically, I wondered if I could build a regression model that would identify which factors related to a capital trial might increase the likelihood that a defendant would indeed go on to be executed. The project below represents an early attempt to use logistic regression to answer that question.
+
+organization . Since the ascension to power of current President Abdel Fattah el-Sisi in early July 2013, Egyptian courts have handed down thousands of death sentences. With Reprieve, I investigated the cases of individuals facing unlawful execution in Egypt; I worked primarily on behalf of peaceful protestors and children sentenced to death in patently unfair trials.
+
+In the course of working on individual cases, it became problematic that there did not exist anywhere in the world a single, codified database tracking all of those on Egypt's death row. It was understandable why that resource didn't exist--it would need to include detailed information about thousands of individuals, and building it would require considerable resources. That sounded like a challenge we could meet, so we set out to build it. With funding from the German Federal Foreign Office, I spent more than a year working with a team of researchers, lawyers, and human rights activists based in both London and Cairo. We fanned out across Egypt, collected and digitized paper court judgments, conducted interviews with victims and their family members, and built the world's first comprehensive database tracking Egypt's massive, unlawful application of the death penalty: the [Egypt Death Penalty Index].
 
 <img src="images/egypt-prelim-map.png?raw=true"/>
 
