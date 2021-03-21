@@ -10,7 +10,9 @@ The raw data that forms the back end of the EDPI ([downloadable here](https://eg
 
 - Demographic information about defendants, such as age, gender, birthplace, occupation, etc.
 - Situational information about alleged offences/crimes, such as time/place of alleged occurrence, type of offence, etc.
-- Procedural information about trials, such as verdicts reached at different appeal phases, time periods in which judgements were handed down, presence/absence of defendants, etc.
+- Procedural information about trials, such as verdicts reached at different appeal phases, time periods in which judgements were handed down, presence/absence of defendants, whether a defendant was ultimately executed, etc.
+
+Some of these pieces of metadata are better suited than others to serving as predictors. For example, information regarding when a final verdict was reached in a case may help us determine which years in the past produced the most capital trials that led to executions, but that information is unlikely to help us predict the outcome of future cases. 
 
 https://egyptdeathpenaltyindex.com/download-data
 - 
