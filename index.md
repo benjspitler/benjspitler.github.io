@@ -2,6 +2,11 @@
 
 ---
 
+### [Using logistic regressions in R to predict executions in Egypt](/logistic-egypt)
+<img src="images/indon_search_screenshot.png?raw=true"/>
+
+---
+
 ### [Web scraping for court cases in Indonesia with RSelenium](/indonesia_scraper)
 <img src="images/indon_search_screenshot.png?raw=true"/>
 
