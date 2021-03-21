@@ -6,11 +6,20 @@ But given that the EDPI contains such rich historical information on hundreds of
 
 ### Raw data
 
-organization . Since the ascension to power of current President Abdel Fattah el-Sisi in early July 2013, Egyptian courts have handed down thousands of death sentences. With Reprieve, I investigated the cases of individuals facing unlawful execution in Egypt; I worked primarily on behalf of peaceful protestors and children sentenced to death in patently unfair trials.
+The raw data that forms the back end of the EDPI ([downloadable here](https://egyptdeathpenaltyindex.com/download-data)) contains a wealth of information about individual defendants in capital trials in Egypt, including:
+
+- Demographic information about defendants, such as age, gender, birthplace, occupation, etc.
+- Situational information about alleged offences/crimes, such as time/place of alleged occurrence, type of offence, etc.
+- Procedural information about trials, such as verdicts reached at different appeal phases, time periods in which judgements were handed down, presence/absence of defendants, etc.
+
+https://egyptdeathpenaltyindex.com/download-data
+- 
+
+<img src="images/EDPI_logit_screenshot.png?raw=true"/>
 
 In the course of working on individual cases, it became problematic that there did not exist anywhere in the world a single, codified database tracking all of those on Egypt's death row. It was understandable why that resource didn't exist--it would need to include detailed information about thousands of individuals, and building it would require considerable resources. That sounded like a challenge we could meet, so we set out to build it. With funding from the German Federal Foreign Office, I spent more than a year working with a team of researchers, lawyers, and human rights activists based in both London and Cairo. We fanned out across Egypt, collected and digitized paper court judgments, conducted interviews with victims and their family members, and built the world's first comprehensive database tracking Egypt's massive, unlawful application of the death penalty: the [Egypt Death Penalty Index].
 
-<img src="images/egypt-prelim-map.png?raw=true"/>
+
 
 In the governorates where more death sentences occurred, the data points are larger and darker red. The scale here is logarithmic, which allows for better comparison--without a logarithmic scale, some governorates, like Minya, which saw more than 1000 death sentences, would dwarf all others. This viz isn't perfect--the labels are overlapping and somewhat difficult to read in the Nile Delta area, where governorates are small and close together, and the logarithmic scale leaves the viewer unable to tell exactly how many death sentences occurred in each location. That said, it provides a good summary of where most death sentences were handed down.
 
