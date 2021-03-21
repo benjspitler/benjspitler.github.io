@@ -4,7 +4,7 @@ As discussed elsewhere in this portfolio, my prior human rights work with [Repri
 
 But given that the EDPI contains such rich historical information on hundreds of capital trials, it occurred to me that this information could also serve as valuable raw material for statistical analysis that might allow us to predict the outcomes of capital trials based on their characteristics. Specifically, I wondered if I could build a regression model that would identify which factors related to a capital trial might increase the likelihood that a defendant would indeed go on to be executed. The project below represents an early attempt to use logistic regression to answer that question.
 
-### Raw data
+### Paring down raw data
 
 The raw data that forms the back end of the EDPI ([downloadable here](https://egyptdeathpenaltyindex.com/download-data)) contains a wealth of information about individual defendants in capital trials in Egypt, including:
 
@@ -12,10 +12,16 @@ The raw data that forms the back end of the EDPI ([downloadable here](https://eg
 - Situational information about alleged offences/crimes, such as time/place of alleged occurrence, type of offence, etc.
 - Procedural information about trials, such as verdicts reached at different appeal phases, time periods in which judgements were handed down, presence/absence of defendants, whether a defendant was ultimately executed, etc.
 
-Some of these pieces of metadata are better suited than others to serving as predictors. For example, information regarding when a final verdict was reached in a case may help us determine which years in the past produced the most capital trials that led to executions, but that information is unlikely to help us predict the outcome of future cases. 
+Some of these pieces of metadata are better suited than others to serving as predictors. For example, information regarding when a final verdict was reached in a case may help us determine which years in the past produced the most capital trials that led to executions, but that information is unlikely to help us predict the outcome of future cases. To prepare the data for use in a logistic regression process, I identified the variables most relevant for these predictive purposes, and settled on the following:
 
-https://egyptdeathpenaltyindex.com/download-data
-- 
+- Whether or not an individual was ultimately executed (column name **executed_0_1**). This would be the response variable.
+- Whether the offence was "political" or "criminal" in nature, that is whether  the alleged facts of the case and the perceived motivation for the commission of the offence were in some way connected to the political and societal changes that have arisen in Egypt since the January 2011 revolution or not (column name **category_of_offence**).
+- The gender of the defendant (column name **defendant_gender**).
+- Whether the defendant was tried in a civilian court or a military tribunal (column name **court_type**).
+- Whether the defendant was tried _in absentia_ or was present during proceedings (column name **defendant_status**).
+- The amount of time elapsed between the defendant's alleged offence and the court reaching a verdict in that defendant's case in the first instance (column name **days_btwn_offence_and_crim_1_judgement**).
+- The number of overall death sentences handed down in the governorate where the individual in question was being tried (column name **governorate_sentences**).
+
 
 <img src="images/EDPI_logit_screenshot.png?raw=true"/>
 
