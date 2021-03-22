@@ -6,11 +6,15 @@ But given that the EDPI contains such rich historical information on hundreds of
 
 ### Paring down raw data
 
-The raw data that forms the back end of the EDPI ([downloadable here](https://egyptdeathpenaltyindex.com/download-data)) contains a wealth of information about individual defendants in capital trials in Egypt, including:
+The first step was to pare down the raw data that forms the back end of the EDPI ([downloadable here](https://egyptdeathpenaltyindex.com/download-data)) into a format that could serve as the basis for regression analysis. The EDPI data contains a wealth of information about individual defendants in capital trials in Egypt, including:
 
 - Demographic information about defendants, such as age, gender, birthplace, occupation, etc.
 - Situational information about alleged offences/crimes, such as time/place of alleged occurrence, type of offence, etc.
 - Procedural information about trials, such as verdicts reached at different appeal phases, time periods in which judgements were handed down, presence/absence of defendants, whether a defendant was ultimately executed, etc.
+
+That data is rich and useful, but messy for the purposes of regression. It looks like this:
+
+<img src="images/EDPI_raw_screenshot.png?raw=true"/>
 
 Some of these pieces of metadata are better suited than others to serving as predictors. For example, information regarding when a final verdict was reached in a case may help us determine which years in the past produced the most capital trials that led to executions, but that information is unlikely to help us predict the outcome of future cases. To prepare the data for use in a logistic regression process, I identified the variables most relevant for these predictive purposes, and settled on the following:
 
@@ -22,6 +26,7 @@ Some of these pieces of metadata are better suited than others to serving as pre
 - The amount of time elapsed between the defendant's alleged offence and the court reaching a verdict in that defendant's case in the first instance (column name **days_btwn_offence_and_crim_1_judgement**).
 - The number of overall death sentences handed down in the governorate where the individual in question was being tried (column name **governorate_sentences**).
 
+For the first five columns, which are binary in nature, I used R's fastDummies package to create dummy variables for each category (see the code at the end of this project for a full description of how this was accomplished). The **days_btwn_offence_and_crim_1_judgement** was achieved by subtracting the **date_of_offence** column from the **date_of_first_verdict** column in the original raw data. The **governorate_sentences** column was achieved by adding a new column to the data which populates with the number of death sentences from the governorate corresponding to where each row's offence occurred. 
 
 <img src="images/EDPI_logit_screenshot.png?raw=true"/>
 
