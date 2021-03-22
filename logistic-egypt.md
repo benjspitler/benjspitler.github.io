@@ -33,7 +33,7 @@ For the first five columns, which are binary in nature, I used R's fastDummies p
 
 ### Testing for significance
 
-I then began testing these variables for their significance in influencing the response variable to shift from 0 to 1, i.e. the extent to which they influenced whether or not an individual was ultimately executed. The first thing I noticed was that the **days_btwn_offence_and_crim_1_judgement** had too many null values to be truly useful; these resulted from individuals whose original offence date or initial verdict date were unknown. I decided to eliminate this column from contention. From there, a first ran a logistic regression using the **executed_0_1** as the response variable and the remaining columns as explanatory variables: **category_of_offence**, **defendant_gender**, **court_type**, **defendant_status**, and **governorate_sentences**. The code for that looked like this:
+I then began testing these variables for their significance in influencing the response variable to shift from 0 to 1, i.e. the extent to which they influenced whether or not an individual was ultimately executed. The first thing I noticed was that the **days_btwn_offence_and_crim_1_judgement** had too many null values to be truly useful; these resulted from individuals whose original offence date or initial verdict date were unknown. I decided to eliminate this column from contention. From there, a first ran a logistic regression using the **executed_0_1** as the response variable and the remaining columns as explanatory variables: **category_of_offence_Criminal**, **defendant_gender_Female**, **court_type_Military_court*, **defendant_status_in_Absentia**, and **governorate_sentences**. The code for that looked like this:
 
 ```javascript
 [//]: # Building the first logistic regression with glm function
@@ -43,85 +43,27 @@ glm.fit_1 <- glm(executed_0_1 ~ category_of_offence_Criminal + defendant_gender_
 
 summary(glm.fit_1)
 ```
+This first logistic regression produced the following result:
+<img src="images/glm_screenshot_1.png?raw=true"/>
+
+We notice based on this regression result that the **defendant_gender_Female** and **defendant_status_in_Absentia** variables are not significant (based on their high p-values), and the **category_of_offence_Criminal** variable is only significant at a p-value greater than 0.05. Based on those observations, I chose to remove **defendant_gender_Female** and **defendant_status_in_Absentia** and see if that improves the model:
 
 ```javascript
-install.packages("RSelenium")
-install.packages("tidyverse")
+# Building the second logistic regression with glm function
+glm.fit_2 <- glm(executed_0_1 ~ governorate_sentences + category_of_offence_Criminal +
+                  court_type_Military_court,
+                data = EDPI_logit_2, family = binomial)
 
-library(RSelenium)
-library(rvest)
-library(stringr)
-library(tidyverse)
-library(dplyr)
-
-[//]: # Initiate Selenium browser.
-driver <- rsDriver(browser=c("chrome"), chromever = "87.0.4280.88")
-remote_driver <- driver[["client"]]
-remote_driver$open()
-
-[//]: # Navigate to search page
-remote_driver$navigate("http://sipp.pn-pangkalanbun.go.id/list_perkara/search")
-
-[//]: # Locate search box
-search_element <- remote_driver$findElement(using = 'id', value = 'search-box')
-
-[//]: # Enter search term
-search_element$sendKeysToElement(list("Kebakaran Hutan"))
-
-[//]: # Locate search button
-button_element <- remote_driver$findElement(using = 'id', value = 'search-btn1')
-
-[//]: # Click search button
-button_element$clickElement()
-
-[//]: # Extract results table as html_table
-scraped_table <- read_html(remote_driver$getPageSource()[[1]]) %>%
-  html_nodes(xpath = '//*[@id="tablePerkaraAll"]') %>% html_table()
-
-[//]: # Convert table to data frame
-scraped_table_df <- as.data.frame(scraped_table)
-
-[//]: # Rename table columns, adding underscores
-colnames(scraped_table_df) <- c("No", "Nomor_Perkara", "Tanggal_Register", "Klasifikasi_Perkara", "Para_Pihak", "Status_Perkara", "Lama_Proses", "Link")
-
-[//]: Remove first row (which has column names in it)
-scraped_table_df = scraped_table_df[-1,]
-
-[//]: # Remove rownames
-rownames(scraped_table_df) = NULL
-
-[//]: # Delete "Link" column, which currently has just the hyperlink title in it ("detil")
-scraped_table_df <- scraped_table_df[, -8]
-
-[//]: # Convert "No" column to integer
-scraped_table_df$No <- as.integer(scraped_table_df$No)
-
-[//]: # Retrieve all URLs on the page residing in the "a" node. This returns all of the URLs on the whole page, which is too many. The last "n" of these links are the ones we want, where "n" is the number of rows in scraped_table_df
-links <- read_html(remote_driver$getPageSource()[[1]]) %>%
-  html_nodes("a") %>% html_attr("href")
-
-[//]: # Turn "links" into a list
-link_list <- as.list(links)
-
-[//]: # Retain only the last "n" links, where "n" is the number of rows in scraped_table_df
-link_list_2 <- tail(link_list, (nrow(scraped_table_df)))
-
-[//]: # Append link_list_2 to scraped_table_df as "Link" column:
-scraped_table_df$Link <- sapply(link_list_2, paste0)
-
-[//]: # Read in previous version of csv file. This is the sheet where we store information previously extracted via this script, so that we can examine this data and only add **new** information to it
-comb_df <- read.csv("farmers_r_sheet.csv")
-
-[//]: # Change Link column to character type
-comb_df$Link <- as.character(comb_df$Link)
-
-
-[//]: # Use anti_join to get rows in scraped_table_df that are not in comb_df and bind them with comb_df. This is how we ensure we are only adding new information to our data base, and not duplicating information we previously added. The unique id we use for matching purposes is the "Nomor_Perkara" (or "case number") column.
-comb_df <- bind_rows(scraped_table_df, anti_join(comb_df, scraped_table_df, by = 'Nomor_Perkara'))
-
-[//]: # Converting "Tanggal_Register" column to date format
-comb_df$Tanggal_Register <- as.Date(comb_df$Tanggal_Register, "%d %b %Y")
-
-[//]: # Writing the newly updated data back to our working directory
-write.csv(comb_df, "farmers_r_sheet.csv", row.names = FALSE)
+summary(glm.fit_2)
 ```
+
+This second logistic regression produces this result:
+<img src="images/glm_screenshot_2.png?raw=true"/>
+
+We see now that **governorate_sentences**, **category_of_offence_Criminal**, and **court_type_Military_court** are all significant, and **category_of_offence_Criminal** has indeed become more significant based on removing **defendant_gender_Female** and **defendant_status_in_Absentia**.
+
+Note that I have chosen to retain and eliminate variables here manually, but this can also be automated through a stepwise regression process. Stepwise regressions have some [issues in the automation process](https://stats.stackexchange.com/questions/20836/algorithms-for-automatic-model-selection/20856#20856) that mean they are not always the soundest choice, especially if the analyst has a deep understanding of the likely relevance of different explanatory variables, but I do plan to redo this process in the future using an automated stepwise procedure to see if I get different results.
+
+### Analysis and explanation
+
+
