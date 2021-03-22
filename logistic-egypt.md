@@ -66,6 +66,32 @@ We see now that **governorate_sentences**, **category_of_offence_Criminal**, and
 
 Note that I have chosen to retain and eliminate variables here manually, but this can also be automated through a stepwise regression process. Stepwise regressions have some [issues in the automation process](https://stats.stackexchange.com/questions/20836/algorithms-for-automatic-model-selection/20856#20856) that mean they are not always the soundest choice, especially if the analyst has a deep understanding of the likely relevance of different explanatory variables, but I do plan to redo this process in the future using an automated stepwise procedure to see if I get different results.
 
+
 ### Analysis and explanation
 
+This model tells us that:
+
+- Controlling for other variables, each additional death sentence handed down in the governorate where an individual was sentenced to death changes the log odds of that individual being executed by -0.0023 
+- Controlling for other variables, an individual being convicted of a criminal offence (as opposed to a political one) changes the log odds of that individual being executed by 1.05
+- Controlling for other variables, an individual being convicted in a military court (as opposed to a civilian court) changes the log odds of that individual being executed by 2.1
+
+We can also exponentiate the coefficients and interpret them as odds-ratios: 
+
+```javascript
+exp(coef(glm.fit_2))
+```
+
+This produces this result:
+
+<img src="images/glm_screenshot_3.png?raw=true"/>
+
+Which tells us that: 
+
+- Controlling for other variables, each additional death sentence handed down in the governorate where an individual was sentenced to death decreases the  odds of that individual being executed by a factor of just less than 1 
+- Controlling for other variables, an individual being convicted of a criminal offence (as opposed to a political one) increases the odds of that individual being executed by a factor of 2.87
+- Controlling for other variables, an individual being convicted in a military court (as opposed to a civilian court) increases the  odds of that individual being executed by a factor of 8.23
+
+Overall, these results make sense. It is not surprising to me that as more death sentences are issued in a given governorate, that corresponds with a slightly reduced chance of any one individual sentenced to death in that governorate going on to be executed. I believe the explanation here is that the governorates with the highest numbers of death sentences, like Minya, Cairo, and Giza, are reflective of mass trials held in those locations, where hundreds of people were sentenced to death simultaneously in some cases. These trials garnered considerable international scrutiny, and thus were probably less likely to lead to actual executions.
+
+It also makes sense that individuals committed of criminal offences and individuals convicted in military courts would be more likely to be executed, though for different reasons. Criminal offences (as opposed to political ones) are generally viewed by authorities as more cut-and-dried and less controversial. These tend to be cases where individuals are convicted of murder related to personal vendettas (for example), as compared to a political offence where a peaceful protestor is accused of being a terrorist. The government is more likely to feel comfortable carrying out executions in the former cases than the latter. Likewise, if an individual is tried in a military tribunal instead of a civilian court, that is often indiciative of the government's commitment to punishing that individual as harshly as possible. That is not to say that individuals convicted in military tribunals were more likely to be guilty, or were accused of more serious offences than those tried in civilian courts--this was very often not the case. Rather, the government trying an individual in a military tribunal makes clear the government's intent to deal with that person as harshly as possible, so it is not surprising that those cases were more likely to end in execution.
 
