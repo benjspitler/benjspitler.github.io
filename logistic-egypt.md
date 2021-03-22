@@ -64,7 +64,21 @@ This second logistic regression produces this result:
 
 We see now that **governorate_sentences**, **category_of_offence_Criminal**, and **court_type_Military_court** are all significant, and **category_of_offence_Criminal** has indeed become more significant based on removing **defendant_gender_Female** and **defendant_status_in_Absentia**.
 
-Note that I have chosen to retain and eliminate variables here manually, but this can also be automated through a stepwise regression process. Stepwise regressions have some [issues in the automation process](https://stats.stackexchange.com/questions/20836/algorithms-for-automatic-model-selection/20856#20856) that mean they are not always the soundest choice, especially if the analyst has a deep understanding of the likely relevance of different explanatory variables, but I do plan to redo this process in the future using an automated stepwise procedure to see if I get different results.
+We can also calculate the Variance Inflaction Factor (VIF) values of each variable in the model to see if multicollinearity is a problem. We do this by installing the car package and running the VIF function:
+
+```javascript
+install.packages('car')
+library(car)
+vif(glm.fit_2)
+```
+
+When we do so, we get this result:
+
+<img src="images/glm_screenshot_4.png?raw=true"/>
+
+Generally, VIF values below 5 indicate no multicollinearity, so it does not appear to be a problem here.
+
+Note that I have chosen to retain and eliminate variables here manually, but this can also be automated through a stepwise regression process. Stepwise regressions have some [issues in the automation process](https://stats.stackexchange.com/questions/20836/algorithms-for-automatic-model-selection/20856#20856) that mean they are not always the soundest choice, especially if the analyst has a deep understanding of the likely relevance of different explanatory variables, but I do plan to redo this process in the future using an automated stepwise procedure to see if I get different results. I'm also aware that separating this dataset into training and testing groups could improve the accuracy of this model; that's something I'm going to get more into as I spend more time on machine learning principles in the coming months.
 
 
 ### Analysis and explanation
@@ -91,7 +105,196 @@ Which tells us that:
 - Controlling for other variables, an individual being convicted of a criminal offence (as opposed to a political one) increases the odds of that individual being executed by a factor of 2.87
 - Controlling for other variables, an individual being convicted in a military court (as opposed to a civilian court) increases the  odds of that individual being executed by a factor of 8.23
 
-Overall, these results make sense. It is not surprising to me that as more death sentences are issued in a given governorate, that corresponds with a slightly reduced chance of any one individual sentenced to death in that governorate going on to be executed. I believe the explanation here is that the governorates with the highest numbers of death sentences, like Minya, Cairo, and Giza, are reflective of mass trials held in those locations, where hundreds of people were sentenced to death simultaneously in some cases. These trials garnered considerable international scrutiny, and thus were probably less likely to lead to actual executions.
+These results make sense. It is not surprising to me that as more death sentences are issued in a given governorate, that corresponds with a slightly reduced chance of any one individual sentenced to death in that governorate going on to be executed. I believe the explanation here is that the governorates with the highest numbers of death sentences, like Minya, Cairo, and Giza, are reflective of mass trials held in those locations, where hundreds of people were sentenced to death simultaneously in some cases. These trials garnered considerable international scrutiny, and thus were probably less likely to lead to actual executions.
 
 It also makes sense that individuals committed of criminal offences and individuals convicted in military courts would be more likely to be executed, though for different reasons. Criminal offences (as opposed to political ones) are generally viewed by authorities as more cut-and-dried and less controversial. These tend to be cases where individuals are convicted of murder related to personal vendettas (for example), as compared to a political offence where a peaceful protestor is accused of being a terrorist. The government is more likely to feel comfortable carrying out executions in the former cases than the latter. Likewise, if an individual is tried in a military tribunal instead of a civilian court, that is often indiciative of the government's commitment to punishing that individual as harshly as possible. That is not to say that individuals convicted in military tribunals were more likely to be guilty, or were accused of more serious offences than those tried in civilian courts--this was very often not the case. Rather, the government trying an individual in a military tribunal makes clear the government's intent to deal with that person as harshly as possible, so it is not surprising that those cases were more likely to end in execution.
 
+Overall, I think the human rights investigations field is ripe for applications of this kind of advanced statistical analysis, and indeed needs more of it; this is a big reason why I am pursuing a statistics and data science education. For example, one could use this type of logisic regression to make decisions about where to allocate casework resources within a human rights organization--if individuals sentenced to death for criminal offences, in military tribunals, and in governorates with overall fewer death sentences are more likely to be executed, organizations can focus their resources on those cases.
+
+
+### Full code block
+
+The full code for this project is as follows
+
+```javascript
+# INSTALLING PACKAGES
+# Install fastDummies package:
+install.packages('fastDummies')
+# https://www.marsja.se/create-dummy-variables-in-r/#Dummy_Coding
+# https://www.statology.org/logistic-regression-in-r/#:~:text=%20How%20to%20Perform%20Logistic%20Regression%20in%20R,Model.%20The%20coefficients%20in%20the%20output...%20More%20
+install.packages('caret')
+install.packages('mctest')
+# car package needed to run VIF function later to determine multicollinearity
+install.packages('car')
+
+
+# UNPACKING LIBRARIES
+library(tidyr)
+library(tidyverse)
+library(dplyr)
+library(data.table)
+# car is for testing for multicollinearity below
+library(car)
+# fastdummies is for auto creation of dummy variables below
+library('fastDummies')
+
+
+# Set working directory
+setwd("C:/Users/benpi/OneDrive/Documents/EDPI")
+
+# Read in the original EDPI raw data in csv form
+EDPI <- read.csv("EDPI logistic regression csv.csv", header = TRUE, sep=",")
+
+# Select relevant columns
+EDPI <- EDPI[, c(1, 3, 6:8, 10:11, 21, 31, 34:37, 45)]
+
+# Change date formats
+EDPI$offence_date <- as.Date(EDPI$offence_date, "%d/%m/%Y")
+EDPI$crim_1_judgement_date <- as.Date(EDPI$crim_1_judgement_date, "%d/%m/%Y")
+
+# Create time_elapsed column
+EDPI$days_btwn_offence_and_crim_1_judgement = EDPI$crim_1_judgement_date-EDPI$offence_date
+
+# Remove irrelevant values in defendant_status column
+EDPI <- subset(EDPI, EDPI$defendant_status!="Died before Referal to the Court" & EDPI$defendant_status!="Died during Procedures")
+
+# Adding column tracking how many death sentences occurred in each governorate
+EDPI = EDPI %>% 
+  mutate(governorate_sentences = case_when(offence_governorate == "Minya" ~ 1302,
+                                           offence_governorate == "Cairo" ~ 642,
+                                           offence_governorate == "Giza" ~ 533,
+                                           offence_governorate == "Sharqia" ~ 304,
+                                           offence_governorate == "Alexandria" ~ 189,
+                                           offence_governorate == "Qena" ~ 156,
+                                           offence_governorate == "Sohag" ~ 150,
+                                           offence_governorate == "Beheira" ~ 131,
+                                           offence_governorate == "Qalyubia" ~ 100,
+                                           offence_governorate == "Ismailia" ~ 98,
+                                           offence_governorate == "North Sinai" ~ 95,
+                                           offence_governorate == "Gharbia" ~ 89,
+                                           offence_governorate == "Kafr El-Sheikh" ~ 85,
+                                           offence_governorate == "Dakahlia" ~ 83,
+                                           offence_governorate == "Faiyum" ~ 68,
+                                           offence_governorate == "Monufia" ~ 66,
+                                           offence_governorate == "Asyut" ~ 54,
+                                           offence_governorate == "Damietta" ~ 47,
+                                           offence_governorate == "Port Said" ~ 42,
+                                           offence_governorate == "Red Sea" ~ 36,
+                                           offence_governorate == "unknown" ~ 34,
+                                           offence_governorate == "Aswan" ~ 31,
+                                           offence_governorate == "Beni Suef" ~ 25,
+                                           offence_governorate == "South Sinai" ~ 20,
+                                           offence_governorate == "Luxor" ~ 13,
+                                           offence_governorate == "El Wadi El-Gedid" ~ 11,
+                                           offence_governorate == "Mersa Matruh" ~ 10,
+                                           offence_governorate == "Suez" ~ 10,
+                                           TRUE ~ 0))
+
+
+write.csv(EDPI, "EDPI_tester.csv", row.names = FALSE)
+
+
+# You may need to remove unknowns from different columns for different types of regressions. For
+# example, if you want to focus on offence_governorate, you might have to remove unknowns there, as below. But
+# if you are focusing more on year of offence, you might leave offence_governorate out completely and remove
+# unknowns from the temporal columns
+#EDPI <- subset(EDPI, EDPI$offence_governorate !="unknown")
+
+#create dummy variables:
+EDPI_logit <- dummy_cols(EDPI, select_columns = c('category_of_offence','offence', 'offence_year', 
+                                                  'offence_period', 'offence_governorate',
+                                                  'defendant_gender',
+                                                  'court_type', 'crim_1_verdict',
+                                                  "defendant_status", 'crim_1_judgement_year'))
+
+# Retaining just the numerical and categorical variables you want. Note, the list below is all of the useful
+# ones, but you may need to pare that down further for more targeted regressions
+EDPI_logit_selected <- EDPI_logit[, c(2, 12:100)]
+
+# Fixing the column names
+setnames(EDPI_logit_selected, old = c('offence_Civilian clashes',
+                                   'offence_Membership in a terrorist organisation',
+                                   'offence_Sit-in clashes',
+                                   'offence_Storming government installations',
+                                   'offence_Terrorism toward religious minorities',
+                                   'offence_Terrorist Acts',
+                                   'offence_period_Adly Mansour',
+                                   'offence_governorate_Beni Suef',
+                                   'offence_governorate_El-Wadi El-Gedid',
+                                   'offence_governorate_Kafr El-Sheikh',
+                                   'offence_governorate_Mersa Matruh',
+                                   'offence_governorate_North Sinai',
+                                   'offence_governorate_Port Said',
+                                   'offence_governorate_Red Sea',
+                                   'offence_governorate_South Sinai',
+                                   'defendant_status_in Absentia',
+                                   'court_type_Civilian court',
+                                   'court_type_Military court',
+                                   'crim_1_verdict_Acquittal after Preliminary death sentence, not yet confirmed',
+                                   'crim_1_verdict_Death sentence',
+                                   'crim_1_verdict_Preliminary death sentence, not yet confirmed',
+                                   'crim_1_verdict_Prison term after preliminary death sentence, not yet confirmed'),
+         new = c('offence_Civilian_clashes','offence_Membership_in_a_terrorist_organisation',
+                 'offence_Sit_in_clashes',
+                 'offence_Storming_government_installations',
+                 'offence_Terrorism_toward_religious_minorities',
+                 'offence_Terrorist_Acts',
+                 'offence_period_Adly_Mansour',
+                 'offence_governorate_Beni_Suef',
+                 'offence_governorate_El_Wadi_El_Gedid',
+                 'offence_governorate_Kafr_El_Sheikh',
+                 'offence_governorate_Mersa_Matruh',
+                 'offence_governorate_North_Sinai',
+                 'offence_governorate_Port_Said',
+                 'offence_governorate_Red_Sea',
+                 'offence_governorate_South_Sinai',
+                 'defendant_status_in_Absentia',
+                 'court_type_Civilian_court',
+                 'court_type_Military_court',
+                 'crim_1_verdict_Acquittal_after_Preliminary_death_sentence_not_yet_confirmed',
+                 'crim_1_verdict_Death_sentence',
+                 'crim_1_verdict_Preliminary_death_sentence_not_yet_confirmed',
+                 'crim_1_verdict_Prison_term_after_preliminary_death_sentence_not_yet_confirmed'))
+
+
+
+colnames(EDPI_logit_selected)
+# Paring down the list for the first logistic regression. This selection was made by trial and error to see which variables would be
+# significant, as opposed to a stepwise process, which has issues as laid out here:
+# https://stats.stackexchange.com/questions/20836/algorithms-for-automatic-model-selection/20856#20856
+EDPI_logit_1 <- EDPI_logit_selected[, c(1, 6, 71, 74, 79, 5)]
+
+# Building the first logistic regression with glm function
+# https://www.datacamp.com/community/tutorials/logistic-regression-R
+glm.fit_1 <- glm(executed_0_1 ~ category_of_offence_Criminal + defendant_gender_Female +
+                 court_type_Military_court + defendant_status_in_Absentia + governorate_sentences,
+               data = EDPI_logit_1, family = binomial)
+
+# We see from the summary below that gender and status are not significant, and category of offence is, but just barely,
+# so let's remove gender and status and see if that improves the model
+summary(glm.fit_1)
+
+
+# Paring down the list further for the second logistic regression.
+# https://stats.stackexchange.com/questions/20836/algorithms-for-automatic-model-selection/20856#20856
+EDPI_logit_2 <- EDPI_logit_selected[, c(1, 5, 6, 74)]
+
+
+# Building the second logistic regression with glm function
+# https://www.datacamp.com/community/tutorials/logistic-regression-R
+glm.fit_2 <- glm(executed_0_1 ~ governorate_sentences + category_of_offence_Criminal +
+                  court_type_Military_court,
+                data = EDPI_logit_2, family = binomial)
+
+# Now we see that governorate_sentences, category_of_offence_Criminal, and _court_type_Military_court are all significant,
+# and category_of_offence_Criminal has gotten more significant based on removing status and gender
+summary(glm.fit_2)
+
+# Use vif to determine multicollinearity. VIF values below 5 reveal no multicollinearity
+# https://www.statology.org/logistic-regression-in-r/#:~:text=%20How%20to%20Perform%20Logistic%20Regression%20in%20R,Model.%20The%20coefficients%20in%20the%20output...%20More%20
+vif(glm.fit_2)
+
+#We can also exponentiate the coefficients and interpret them as odds-ratios: 
+# https://stats.idre.ucla.edu/r/dae/logit-regression/
+exp(coef(glm.fit_2))
+```
