@@ -50,7 +50,7 @@ This first logistic regression produced the following result:
 We notice based on this regression result that the **defendant_gender_Female** and **defendant_status_in_Absentia** variables are not significant (based on their high p-values), and the **category_of_offence_Criminal** variable is only significant at a p-value greater than 0.05. Based on those observations, I chose to remove **defendant_gender_Female** and **defendant_status_in_Absentia** and see if that improves the model:
 
 ```javascript
-# Building the second logistic regression with glm function
+[//]: # Building the second logistic regression with glm function
 glm.fit_2 <- glm(executed_0_1 ~ governorate_sentences + category_of_offence_Criminal +
                   court_type_Military_court,
                 data = EDPI_logit_2, family = binomial)
@@ -117,48 +117,48 @@ Overall, I think the human rights investigations field is ripe for applications 
 The full code for this project is as follows
 
 ```javascript
-# INSTALLING PACKAGES
-# Install fastDummies package:
+[//]: # INSTALLING PACKAGES
+[//]: # Install fastDummies package:
 install.packages('fastDummies')
-# https://www.marsja.se/create-dummy-variables-in-r/#Dummy_Coding
-# https://www.statology.org/logistic-regression-in-r/#:~:text=%20How%20to%20Perform%20Logistic%20Regression%20in%20R,Model.%20The%20coefficients%20in%20the%20output...%20More%20
+[//]: # https://www.marsja.se/create-dummy-variables-in-r/#Dummy_Coding
+[//]: # https://www.statology.org/logistic-regression-in-r/#:~:text=%20How%20to%20Perform%20Logistic%20Regression%20in%20R,Model.%20The%20coefficients%20in%20the%20output...%20More%20
 install.packages('caret')
 install.packages('mctest')
-# car package needed to run VIF function later to determine multicollinearity
+[//]: # car package needed to run VIF function later to determine multicollinearity
 install.packages('car')
 
 
-# UNPACKING LIBRARIES
+[//]: # UNPACKING LIBRARIES
 library(tidyr)
 library(tidyverse)
 library(dplyr)
 library(data.table)
-# car is for testing for multicollinearity below
+[//]: # car is for testing for multicollinearity below
 library(car)
-# fastdummies is for auto creation of dummy variables below
+[//]: # fastdummies is for auto creation of dummy variables below
 library('fastDummies')
 
 
-# Set working directory
+[//]: # Set working directory
 setwd("C:/Users/benpi/OneDrive/Documents/EDPI")
 
-# Read in the original EDPI raw data in csv form
+[//]: # Read in the original EDPI raw data in csv form
 EDPI <- read.csv("EDPI logistic regression csv.csv", header = TRUE, sep=",")
 
-# Select relevant columns
+[//]: # Select relevant columns
 EDPI <- EDPI[, c(1, 3, 6:8, 10:11, 21, 31, 34:37, 45)]
 
-# Change date formats
+[//]: # Change date formats
 EDPI$offence_date <- as.Date(EDPI$offence_date, "%d/%m/%Y")
 EDPI$crim_1_judgement_date <- as.Date(EDPI$crim_1_judgement_date, "%d/%m/%Y")
 
-# Create time_elapsed column
+[//]: # Create time_elapsed column
 EDPI$days_btwn_offence_and_crim_1_judgement = EDPI$crim_1_judgement_date-EDPI$offence_date
 
-# Remove irrelevant values in defendant_status column
+[//]: # Remove irrelevant values in defendant_status column
 EDPI <- subset(EDPI, EDPI$defendant_status!="Died before Referal to the Court" & EDPI$defendant_status!="Died during Procedures")
 
-# Adding column tracking how many death sentences occurred in each governorate
+[//]: # Adding column tracking how many death sentences occurred in each governorate
 EDPI = EDPI %>% 
   mutate(governorate_sentences = case_when(offence_governorate == "Minya" ~ 1302,
                                            offence_governorate == "Cairo" ~ 642,
@@ -190,28 +190,18 @@ EDPI = EDPI %>%
                                            offence_governorate == "Suez" ~ 10,
                                            TRUE ~ 0))
 
-
-write.csv(EDPI, "EDPI_tester.csv", row.names = FALSE)
-
-
-# You may need to remove unknowns from different columns for different types of regressions. For
-# example, if you want to focus on offence_governorate, you might have to remove unknowns there, as below. But
-# if you are focusing more on year of offence, you might leave offence_governorate out completely and remove
-# unknowns from the temporal columns
-#EDPI <- subset(EDPI, EDPI$offence_governorate !="unknown")
-
-#create dummy variables:
+[//]: # create dummy variables:
 EDPI_logit <- dummy_cols(EDPI, select_columns = c('category_of_offence','offence', 'offence_year', 
                                                   'offence_period', 'offence_governorate',
                                                   'defendant_gender',
                                                   'court_type', 'crim_1_verdict',
                                                   "defendant_status", 'crim_1_judgement_year'))
 
-# Retaining just the numerical and categorical variables you want. Note, the list below is all of the useful
-# ones, but you may need to pare that down further for more targeted regressions
+[//]: # Retaining just the numerical and categorical variables you want. Note, the list below is all of the useful
+[//]: # ones, but you may need to pare that down further for more targeted regressions
 EDPI_logit_selected <- EDPI_logit[, c(2, 12:100)]
 
-# Fixing the column names
+[//]: # Fixing the column names
 setnames(EDPI_logit_selected, old = c('offence_Civilian clashes',
                                    'offence_Membership in a terrorist organisation',
                                    'offence_Sit-in clashes',
@@ -256,45 +246,40 @@ setnames(EDPI_logit_selected, old = c('offence_Civilian clashes',
                  'crim_1_verdict_Preliminary_death_sentence_not_yet_confirmed',
                  'crim_1_verdict_Prison_term_after_preliminary_death_sentence_not_yet_confirmed'))
 
-
-
-colnames(EDPI_logit_selected)
-# Paring down the list for the first logistic regression. This selection was made by trial and error to see which variables would be
-# significant, as opposed to a stepwise process, which has issues as laid out here:
-# https://stats.stackexchange.com/questions/20836/algorithms-for-automatic-model-selection/20856#20856
+[//]: # Paring down the list for the first logistic regression. This selection was made by trial and error to see which variables would be
+[//]: # significant, as opposed to a stepwise process, which has issues as laid out here:
+[//]: # https://stats.stackexchange.com/questions/20836/algorithms-for-automatic-model-selection/20856#20856
 EDPI_logit_1 <- EDPI_logit_selected[, c(1, 6, 71, 74, 79, 5)]
 
-# Building the first logistic regression with glm function
-# https://www.datacamp.com/community/tutorials/logistic-regression-R
+[//]: # Building the first logistic regression with glm function
+[//]: # https://www.datacamp.com/community/tutorials/logistic-regression-R
 glm.fit_1 <- glm(executed_0_1 ~ category_of_offence_Criminal + defendant_gender_Female +
                  court_type_Military_court + defendant_status_in_Absentia + governorate_sentences,
                data = EDPI_logit_1, family = binomial)
 
-# We see from the summary below that gender and status are not significant, and category of offence is, but just barely,
-# so let's remove gender and status and see if that improves the model
+[//]: # We see from the summary below that gender and status are not significant, and category of offence is, but just barely,
+[//]: # so let's remove gender and status and see if that improves the model
 summary(glm.fit_1)
 
-
-# Paring down the list further for the second logistic regression.
-# https://stats.stackexchange.com/questions/20836/algorithms-for-automatic-model-selection/20856#20856
+[//]: # Paring down the list further for the second logistic regression.
+[//]: # https://stats.stackexchange.com/questions/20836/algorithms-for-automatic-model-selection/20856#20856
 EDPI_logit_2 <- EDPI_logit_selected[, c(1, 5, 6, 74)]
 
-
-# Building the second logistic regression with glm function
-# https://www.datacamp.com/community/tutorials/logistic-regression-R
+[//]: # Building the second logistic regression with glm function
+[//]: # https://www.datacamp.com/community/tutorials/logistic-regression-R
 glm.fit_2 <- glm(executed_0_1 ~ governorate_sentences + category_of_offence_Criminal +
                   court_type_Military_court,
                 data = EDPI_logit_2, family = binomial)
 
-# Now we see that governorate_sentences, category_of_offence_Criminal, and _court_type_Military_court are all significant,
-# and category_of_offence_Criminal has gotten more significant based on removing status and gender
+[//]: # Now we see that governorate_sentences, category_of_offence_Criminal, and _court_type_Military_court are all significant,
+[//]: # and category_of_offence_Criminal has gotten more significant based on removing status and gender
 summary(glm.fit_2)
 
-# Use vif to determine multicollinearity. VIF values below 5 reveal no multicollinearity
-# https://www.statology.org/logistic-regression-in-r/#:~:text=%20How%20to%20Perform%20Logistic%20Regression%20in%20R,Model.%20The%20coefficients%20in%20the%20output...%20More%20
+[//]: # Use vif to determine multicollinearity. VIF values below 5 reveal no multicollinearity
+[//]: # https://www.statology.org/logistic-regression-in-r/#:~:text=%20How%20to%20Perform%20Logistic%20Regression%20in%20R,Model.%20The%20coefficients%20in%20the%20output...%20More%20
 vif(glm.fit_2)
 
-#We can also exponentiate the coefficients and interpret them as odds-ratios: 
-# https://stats.idre.ucla.edu/r/dae/logit-regression/
+[//]: # We can also exponentiate the coefficients and interpret them as odds-ratios: 
+[//]: # https://stats.idre.ucla.edu/r/dae/logit-regression/
 exp(coef(glm.fit_2))
 ```
