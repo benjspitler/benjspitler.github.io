@@ -44,6 +44,7 @@ glm.fit_1 <- glm(executed_0_1 ~ category_of_offence_Criminal + defendant_gender_
 summary(glm.fit_1)
 ```
 This first logistic regression produced the following result:
+
 <img src="images/glm_screenshot_1.png?raw=true"/>
 
 We notice based on this regression result that the **defendant_gender_Female** and **defendant_status_in_Absentia** variables are not significant (based on their high p-values), and the **category_of_offence_Criminal** variable is only significant at a p-value greater than 0.05. Based on those observations, I chose to remove **defendant_gender_Female** and **defendant_status_in_Absentia** and see if that improves the model:
@@ -58,6 +59,7 @@ summary(glm.fit_2)
 ```
 
 This second logistic regression produces this result:
+
 <img src="images/glm_screenshot_2.png?raw=true"/>
 
 We see now that **governorate_sentences**, **category_of_offence_Criminal**, and **court_type_Military_court** are all significant, and **category_of_offence_Criminal** has indeed become more significant based on removing **defendant_gender_Female** and **defendant_status_in_Absentia**.
