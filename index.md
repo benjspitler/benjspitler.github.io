@@ -3,7 +3,7 @@
 ---
 
 ### [Using logistic regressions in R to predict executions in Egypt](/logistic-egypt)
-<img src="images/indon_search_screenshot.png?raw=true"/>
+<img src="images/glm_screenshot_2.png?raw=true"/>
 
 ---
 
