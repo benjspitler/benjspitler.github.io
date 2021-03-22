@@ -2,7 +2,7 @@
 
 As discussed [elsewhere](https://benjspitler.github.io/EDPI) in this portfolio, my prior human rights work with [Reprieve](https://reprieve.org/uk/) involved the creation of the [Egypt Death Penalty Index](https://egyptdeathpenaltyindex.com) (EDPI), a comprehensive database tracking all known capital trials in Egypt since 2013, and many from before then as well. The resulting data provides an important real-time view into the Egyptian government's application of capital punishment. The database allows human rights defenders to examine ongoing capital trials and identify individuals in need of legal assistance, which is largely how the EDPI has been used to date.
 
-But given that the EDPI contains such rich historical information on hundreds of capital trials, it occurred to me that this information could also serve as valuable raw material for statistical analysis that might allow us to predict the outcomes of capital trials based on their characteristics. Specifically, I wondered if I could build a regression model that would identify which factors related to a capital trial might increase the likelihood that a defendant would indeed go on to be executed. The project below represents an early attempt to use logistic regression to answer that question.
+But given that the EDPI contains such rich historical information on hundreds of capital trials, it occurred to me that this information could also serve as valuable raw material for statistical analysis that might allow us to predict the outcomes of future capital trials based on their characteristics. Specifically, I wondered if I could build a regression model that would identify which factors related to a capital trial might increase the likelihood that a defendant would go on to be executed. The project below represents an early attempt to use logistic regression to answer that question.
 
 ### Paring down raw data
 
@@ -10,30 +10,79 @@ The first step was to pare down the raw data that forms the back end of the EDPI
 
 - Demographic information about defendants, such as age, gender, birthplace, occupation, etc.
 - Situational information about alleged offences/crimes, such as time/place of alleged occurrence, type of offence, etc.
-- Procedural information about trials, such as verdicts reached at different appeal phases, time periods in which judgements were handed down, presence/absence of defendants, whether a defendant was ultimately executed, etc.
+- Procedural information about trials, such as the verdicts reached at different appeal phases, time periods in which judgements were handed down, presence/absence of defendants, whether a defendant was ultimately executed, etc.
 
 That data is rich and useful, but messy for the purposes of regression. It looks like this:
 
 <img src="images/EDPI_raw_screenshot.png?raw=true"/>
 
-Some of these pieces of metadata are better suited than others to serving as predictors. For example, information regarding when a final verdict was reached in a case may help us determine which years in the past produced the most capital trials that led to executions, but that information is unlikely to help us predict the outcome of future cases. To prepare the data for use in a logistic regression process, I identified the variables most relevant for these predictive purposes, and settled on the following:
+Some of these pieces of metadata are better suited than others to serving as predictors. For example, information regarding when a final verdict was reached in a case allows us to determine which years in the past produced the most capital trials that led to executions, but that information is unlikely to help us predict the outcome of future cases. To prepare the data for use in a logistic regression process, I identified the variables most relevant for these predictive purposes, and settled on the following:
 
-- Whether or not an individual was ultimately executed (column name **executed_0_1**). This would be the response variable. Any individual who was ultimately executed received a 1 in this column, anyone who was not executed received a 0.
-- Whether the offence was "political" or "criminal" in nature, that is whether  the alleged facts of the case and the perceived motivation for the commission of the offence were in some way connected to the political and societal changes that have arisen in Egypt since the January 2011 revolution or not (column name **category_of_offence**).
+- Whether or not an individual was ultimately executed (column name **executed_0_1** in the new, pared down dataset). This would be the response variable. Any individual who was ultimately executed received a 1 in this column, anyone who was not executed received a 0.
+- Whether the offence was "political" or "criminal" in nature--that is, whether  the alleged facts of the case and the perceived motivation for the commission of the offence were in some way connected to the political and societal changes that have arisen in Egypt since the January 2011 revolution or not (column name **category_of_offence**).
 - The gender of the defendant (column name **defendant_gender**).
 - Whether the defendant was tried in a civilian court or a military tribunal (column name **court_type**).
 - Whether the defendant was tried _in absentia_ or was present during proceedings (column name **defendant_status**).
 - The amount of time elapsed between the defendant's alleged offence and the court reaching a verdict in that defendant's case in the first instance (column name **days_btwn_offence_and_crim_1_judgement**).
 - The number of overall death sentences handed down in the governorate where the individual in question was being tried (column name **governorate_sentences**).
 
-For the first five columns, which are binary in nature, I used R's fastDummies package to create dummy variables for each category (see the code at the end of this project for a full description of how this was accomplished). The **days_btwn_offence_and_crim_1_judgement** was achieved by subtracting the **date_of_offence** column from the **date_of_first_verdict** column in the original raw data. The **governorate_sentences** column was achieved by adding a new column to the data which populates with the number of death sentences from the governorate corresponding to where each row's offence occurred. After reformatting the data, creating dummy variables,a nd removing unnecessary columns, we are left with a csv that looks like the below (when in table form):
+For the first five columns, which are binary in nature, I used R's fastDummies package to create dummy variables for each category:
+
+```javascript
+install.packages('fastDummies')
+library('fastDummies')
+
+[//]: # Create days_btwn_offence_and_crim_1_judgement column
+EDPI$days_btwn_offence_and_crim_1_judgement = EDPI$crim_1_judgement_date-EDPI$offence_date
+
+[//]: # Adding column tracking how many death sentences occurred in each governorate
+EDPI = EDPI %>% 
+  mutate(governorate_sentences = case_when(offence_governorate == "Minya" ~ 1302,
+                                           offence_governorate == "Cairo" ~ 642,
+                                           offence_governorate == "Giza" ~ 533,
+                                           offence_governorate == "Sharqia" ~ 304,
+                                           offence_governorate == "Alexandria" ~ 189,
+                                           offence_governorate == "Qena" ~ 156,
+                                           offence_governorate == "Sohag" ~ 150,
+                                           offence_governorate == "Beheira" ~ 131,
+                                           offence_governorate == "Qalyubia" ~ 100,
+                                           offence_governorate == "Ismailia" ~ 98,
+                                           offence_governorate == "North Sinai" ~ 95,
+                                           offence_governorate == "Gharbia" ~ 89,
+                                           offence_governorate == "Kafr El-Sheikh" ~ 85,
+                                           offence_governorate == "Dakahlia" ~ 83,
+                                           offence_governorate == "Faiyum" ~ 68,
+                                           offence_governorate == "Monufia" ~ 66,
+                                           offence_governorate == "Asyut" ~ 54,
+                                           offence_governorate == "Damietta" ~ 47,
+                                           offence_governorate == "Port Said" ~ 42,
+                                           offence_governorate == "Red Sea" ~ 36,
+                                           offence_governorate == "unknown" ~ 34,
+                                           offence_governorate == "Aswan" ~ 31,
+                                           offence_governorate == "Beni Suef" ~ 25,
+                                           offence_governorate == "South Sinai" ~ 20,
+                                           offence_governorate == "Luxor" ~ 13,
+                                           offence_governorate == "El Wadi El-Gedid" ~ 11,
+                                           offence_governorate == "Mersa Matruh" ~ 10,
+                                           offence_governorate == "Suez" ~ 10,
+                                           TRUE ~ 0))
+
+[//]: # create dummy variables:
+EDPI_logit <- dummy_cols(EDPI, select_columns = c('category_of_offence','offence', 'offence_year', 
+                                                  'offence_period', 'offence_governorate',
+                                                  'defendant_gender',
+                                                  'court_type', 'crim_1_verdict',
+                                                  "defendant_status", 'crim_1_judgement_year'))
+```
+
+(see the bottom of this page for the full block of code I used for this project). As you see above, the **days_btwn_offence_and_crim_1_judgement** column was achieved by subtracting the **date_of_offence** column from the **date_of_first_verdict** column in the original raw data. The **governorate_sentences** column was then achieved by adding a new column to the data which populates with the number of death sentences from the governorate corresponding to where each row's offence occurred. After reformatting the data, creating dummy variables, and removing unnecessary columns, we are left with a csv that looks like the below (when in table form):
 
 <img src="images/EDPI_logit_raw_screenshot.png?raw=true"/>
 
 
 ### Testing for significance
 
-I then began testing these variables for their significance in influencing the response variable to shift from 0 to 1, i.e. the extent to which they influenced whether or not an individual was ultimately executed. The first thing I noticed was that the **days_btwn_offence_and_crim_1_judgement** had too many null values to be truly useful; these resulted from individuals whose original offence date or initial verdict date were unknown. I decided to eliminate this column from contention. From there, I first ran a logistic regression using the **executed_0_1** as the response variable and the remaining columns as explanatory variables: **category_of_offence_Criminal**, **defendant_gender_Female**, **court_type_Military_court*, **defendant_status_in_Absentia**, and **governorate_sentences**. The code for that looked like this:
+I then began testing these variables for their significance in influencing the response variable to shift from 0 to 1, i.e. the extent to which they influenced whether or not an individual was ultimately executed. The first thing I noticed was that the **days_btwn_offence_and_crim_1_judgement** column had too many null values to be truly useful; these resulted from individuals whose original offence date or initial verdict date were unknown. I decided to eliminate this column from contention. From there, I first ran a logistic regression using the **executed_0_1** coumn as the response variable and the remaining columns as explanatory variables: **category_of_offence_Criminal**, **defendant_gender_Female**, **court_type_Military_court**, **defendant_status_in_Absentia**, and **governorate_sentences**. The code for that looked like this:
 
 ```javascript
 [//]: # Building the first logistic regression with glm function
@@ -105,11 +154,13 @@ Which tells us that:
 - Controlling for other variables, an individual being convicted of a criminal offence (as opposed to a political one) increases the odds of that individual being executed by a factor of 2.87
 - Controlling for other variables, an individual being convicted in a military court (as opposed to a civilian court) increases the  odds of that individual being executed by a factor of 8.23
 
-These results make sense. It is not surprising to me that as more death sentences are issued in a given governorate, that corresponds with a slightly reduced chance of any one individual sentenced to death in that governorate going on to be executed. I believe the explanation here is that the governorates with the highest numbers of death sentences, like Minya, Cairo, and Giza, are reflective of mass trials held in those locations, where hundreds of people were sentenced to death simultaneously in some cases. These trials garnered considerable international scrutiny, and thus were probably less likely to lead to actual executions.
+These results make sense. It is not surprising to me that as more death sentences are issued in a given governorate, that corresponds with a slightly reduced chance of any one individual sentenced to death in that governorate going on to be executed. I believe the explanation here is that the highest numbers of death sentences, in governorates like Minya, Cairo, and Giza, resulted from mass trials held in those locations, where hundreds of people were sentenced to death simultaneously in some cases. These trials garnered considerable international scrutiny, and thus were probably less likely to lead to actual executions. Conversely, it was likely easier and less controversial for the government to carry out executions related to death sentences resulting from smaller, lesser-known trials.
 
-It also makes sense that individuals convicted of criminal offences and individuals convicted in military courts would be more likely to be executed, though for different reasons. Criminal offences (as opposed to political ones) are generally viewed by Egyptian authorities as more cut-and-dried and less controversial. These tend to be cases where individuals are convicted of murder related to personal vendettas (for example), as compared to a political offence where a peaceful protestor may be accused of being a terrorist. The government is more likely to feel comfortable carrying out executions in the former cases than the latter, as they garner less international attention. Likewise, if an individual is tried in a military tribunal instead of a civilian court, that is often indiciative of the government's commitment to punishing that individual as harshly as possible. That is not to say that individuals convicted in military tribunals are more likely to be guilty, or are accused of more serious offences than those tried in civilian courts--this is very often not the case. Rather, the government trying an individual in a military tribunal makes clear the government's intent to deal with that person as harshly as possible, so it is not surprising that those cases were more likely to end in execution.
+It also makes sense that individuals convicted of criminal offences would be more likely to be executed. Criminal offences (as opposed to political ones) are generally viewed by Egyptian authorities as more cut-and-dried and less controversial. These tend to be cases where individuals are convicted of murder related to personal vendettas (for example), as compared to a political offence where a peaceful protestor may be accused of being a terrorist. The government is more likely to feel comfortable carrying out executions in the former cases than the latter, as they garner less international attention.
 
-Overall, I think the human rights investigations field is ripe for applications of this kind of advanced statistical analysis, and indeed needs more of it; this is a big reason why I am pursuing a statistics and data science education. For example, one could use this type of logistic regression to make decisions about where to allocate casework resources within a human rights organization--if individuals sentenced to death for criminal offences, in military tribunals, and in governorates with overall fewer death sentences are more likely to be executed, organizations can focus their resources on those cases.
+Likewise, if an individual is tried in a military tribunal instead of a civilian court, that is often indiciative of the government's commitment to punishing that individual as harshly as possible. That is not to say that individuals convicted in military tribunals are more likely to be guilty, or are accused of more serious offences than those tried in civilian courts--this is very often not the case. Rather, the government trying an individual in a military tribunal makes clear the government's intent to deal with that person as harshly as possible, so it is not surprising that those cases were more likely to end in execution.
+
+Overall, the human rights investigations field is ripe for applications of this kind of advanced statistical analysis, and indeed needs more of it; this is a big reason why I am pursuing a statistics and data science education. For example, one could use this type of logistic regression to make decisions about where to allocate casework resources within a human rights organization--if individuals sentenced to death for criminal offences, in military tribunals, and in governorates with overall fewer death sentences are more likely to be executed, organizations can focus their resources on those cases.
 
 
 ### Full code block
@@ -152,7 +203,7 @@ EDPI <- EDPI[, c(1, 3, 6:8, 10:11, 21, 31, 34:37, 45)]
 EDPI$offence_date <- as.Date(EDPI$offence_date, "%d/%m/%Y")
 EDPI$crim_1_judgement_date <- as.Date(EDPI$crim_1_judgement_date, "%d/%m/%Y")
 
-[//]: # Create time_elapsed column
+[//]: # Create days_btwn_offence_and_crim_1_judgement column
 EDPI$days_btwn_offence_and_crim_1_judgement = EDPI$crim_1_judgement_date-EDPI$offence_date
 
 [//]: # Remove irrelevant values in defendant_status column
