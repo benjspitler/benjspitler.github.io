@@ -18,7 +18,7 @@ That data is rich and useful, but messy for the purposes of regression. It looks
 
 Some of these pieces of metadata are better suited than others to serving as predictors. For example, information regarding when a final verdict was reached in a case may help us determine which years in the past produced the most capital trials that led to executions, but that information is unlikely to help us predict the outcome of future cases. To prepare the data for use in a logistic regression process, I identified the variables most relevant for these predictive purposes, and settled on the following:
 
-- Whether or not an individual was ultimately executed (column name **executed_0_1**). This would be the response variable.
+- Whether or not an individual was ultimately executed (column name **executed_0_1**). This would be the response variable. Any individual who was ultimately executed received a 1 in this column, anyone who was not executed received a 0.
 - Whether the offence was "political" or "criminal" in nature, that is whether  the alleged facts of the case and the perceived motivation for the commission of the offence were in some way connected to the political and societal changes that have arisen in Egypt since the January 2011 revolution or not (column name **category_of_offence**).
 - The gender of the defendant (column name **defendant_gender**).
 - Whether the defendant was tried in a civilian court or a military tribunal (column name **court_type**).
@@ -30,11 +30,10 @@ For the first five columns, which are binary in nature, I used R's fastDummies p
 
 <img src="images/EDPI_logit_raw_screenshot.png?raw=true"/>
 
-In the course of working on individual cases, it became problematic that there did not exist anywhere in the world a single, codified database tracking all of those on Egypt's death row. It was understandable why that resource didn't exist--it would need to include detailed information about thousands of individuals, and building it would require considerable resources. That sounded like a challenge we could meet, so we set out to build it. With funding from the German Federal Foreign Office, I spent more than a year working with a team of researchers, lawyers, and human rights activists based in both London and Cairo. We fanned out across Egypt, collected and digitized paper court judgments, conducted interviews with victims and their family members, and built the world's first comprehensive database tracking Egypt's massive, unlawful application of the death penalty: the [Egypt Death Penalty Index].
 
+### Testing for significance
 
-
-In the governorates where more death sentences occurred, the data points are larger and darker red. The scale here is logarithmic, which allows for better comparison--without a logarithmic scale, some governorates, like Minya, which saw more than 1000 death sentences, would dwarf all others. This viz isn't perfect--the labels are overlapping and somewhat difficult to read in the Nile Delta area, where governorates are small and close together, and the logarithmic scale leaves the viewer unable to tell exactly how many death sentences occurred in each location. That said, it provides a good summary of where most death sentences were handed down.
+I then began testing these variables for their significance in influencing the response variable to shift from 0 to 1, i.e. the extent to which they influenced whether or not an individual was ultimately executed. 
 
 The code for this viz looks like this:
 
