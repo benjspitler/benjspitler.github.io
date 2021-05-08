@@ -25,93 +25,65 @@ Some of these pieces of metadata are better suited than others to serving as pre
 - Whether the defendant was tried _in absentia_ or was present during proceedings (column name **defendant_status**).
 - The amount of time elapsed between the defendant's alleged offence and the court reaching a verdict in that defendant's case in the first instance (column name **days_btwn_offence_and_crim_1_judgement**).
 - The number of overall death sentences handed down in the governorate where the individual in question was being tried (column name **governorate_sentences**).
+- The specific offence that a defendant was accused of (column name **offence**).
 
-For the first five columns, which are binary in nature, I used R's fastDummies package to create dummy variables for each category:
+### Dummies or factors?
 
-```javascript
-install.packages('fastDummies')
-library('fastDummies')
+One of the mistakes I made during my first attempt at this analysis was to use R's fastDummies package to create dummy variables for each category. This meant that every factor value within the text columns received its own new column, wherein each row received a 1 or a 0. For example, the "offence" column initially contained a number of different death-eligible offenses that defendants were charged with--espionage, terrorist acts, murder, etc. When I used the fastDummies package, this created a new column for every possible offence (titled offence_espionage, offence_terrorist_acts, offence_murder, etc.), and each row received a 1 in the column pertaining to that defendant's alleged offence, and a 0 everywhere else. The problem there is that this is not a statistically sound way to approach logistic regression. Specifically, wherever there are factor variables, R's glm function will remove one "level" from each factor as a reference. Then, in the resulting logistic regression output, the coefficients for the other factor variables within that column express the extent to which those variables influenced the chosen response variable *compared to the reference level*." As such, including every level of a factor in a logistic regression model, like I initially tried to do with the fastDummies package, is incorrect, as it leaves no reference point for interpreting the other variables.
 
-[//]: # Create days_btwn_offence_and_crim_1_judgement column
-EDPI$days_btwn_offence_and_crim_1_judgement = EDPI$crim_1_judgement_date-EDPI$offence_date
+THe correct way to do this is actually to feed the factor variables to R's glm function using the as.factor kwarg. Before doing that, though, you can actually choose which level of each factor will be treated as the reference level by R--i.e. which level will be absorbed into the intercept. To do that, I coded each factor variable in the data as an unordered factor and then specified the reference level:
 
-[//]: # Adding column tracking how many death sentences occurred in each governorate
-EDPI = EDPI %>% 
-  mutate(governorate_sentences = case_when(offence_governorate == "Minya" ~ 1302,
-                                           offence_governorate == "Cairo" ~ 642,
-                                           offence_governorate == "Giza" ~ 533,
-                                           offence_governorate == "Sharqia" ~ 304,
-                                           offence_governorate == "Alexandria" ~ 189,
-                                           offence_governorate == "Qena" ~ 156,
-                                           offence_governorate == "Sohag" ~ 150,
-                                           offence_governorate == "Beheira" ~ 131,
-                                           offence_governorate == "Qalyubia" ~ 100,
-                                           offence_governorate == "Ismailia" ~ 98,
-                                           offence_governorate == "North Sinai" ~ 95,
-                                           offence_governorate == "Gharbia" ~ 89,
-                                           offence_governorate == "Kafr El-Sheikh" ~ 85,
-                                           offence_governorate == "Dakahlia" ~ 83,
-                                           offence_governorate == "Faiyum" ~ 68,
-                                           offence_governorate == "Monufia" ~ 66,
-                                           offence_governorate == "Asyut" ~ 54,
-                                           offence_governorate == "Damietta" ~ 47,
-                                           offence_governorate == "Port Said" ~ 42,
-                                           offence_governorate == "Red Sea" ~ 36,
-                                           offence_governorate == "unknown" ~ 34,
-                                           offence_governorate == "Aswan" ~ 31,
-                                           offence_governorate == "Beni Suef" ~ 25,
-                                           offence_governorate == "South Sinai" ~ 20,
-                                           offence_governorate == "Luxor" ~ 13,
-                                           offence_governorate == "El Wadi El-Gedid" ~ 11,
-                                           offence_governorate == "Mersa Matruh" ~ 10,
-                                           offence_governorate == "Suez" ~ 10,
-                                           TRUE ~ 0))
+```
+EDPI$category_of_offence <- factor(EDPI$category_of_offence, ordered = FALSE)
+EDPI$category_of_offence = relevel(EDPI$category_of_offence, ref = "Political")
 
-[//]: # create dummy variables:
-EDPI_logit <- dummy_cols(EDPI, select_columns = c('category_of_offence','offence', 'offence_year', 
-                                                  'offence_period', 'offence_governorate',
-                                                  'defendant_gender',
-                                                  'court_type', 'crim_1_verdict',
-                                                  "defendant_status", 'crim_1_judgement_year'))
+EDPI$offence <- factor(EDPI$offence, ordered = FALSE)
+EDPI$offence = relevel(EDPI$offence, ref = "Espionage")
+
+EDPI$offence_governorate <- factor(EDPI$offence_governorate, ordered = FALSE)
+EDPI$offence_governorate = relevel(EDPI$offence_governorate, ref = "Other")
+
+EDPI$defendant_gender <- factor(EDPI$defendant_gender, ordered = FALSE)
+EDPI$defendant_gender = relevel(EDPI$defendant_gender, ref = "Male")
+
+EDPI$court_type <- factor(EDPI$court_type, ordered = FALSE)
+EDPI$court_type = relevel(EDPI$court_type, ref = "Civilian court")
 ```
 
-(see the bottom of this page for the full block of code I used for this project). As you see above, the **days_btwn_offence_and_crim_1_judgement** column was achieved by subtracting the **date_of_offence** column from the **date_of_first_verdict** column in the original raw data. The **governorate_sentences** column was then achieved by adding a new column to the data which populates with the number of death sentences from the governorate corresponding to where each row's offence occurred. After reformatting the data, creating dummy variables, and removing unnecessary columns, we are left with a csv that looks like the below (when in table form):
+ After reformatting the data, creating dummy variables, and removing unnecessary columns, we are left with a csv that looks like the below (when in table form). (see the bottom of this page for the full block of code I used for this project):
 
 <img src="images/EDPI_logit_raw_screenshot.png?raw=true"/>
 
 
 ### Testing for significance
 
-I then began testing these variables for their significance in influencing the response variable to shift from 0 to 1, i.e. the extent to which they influenced whether or not an individual was ultimately executed. The first thing I noticed was that the **days_btwn_offence_and_crim_1_judgement** column had too many null values to be truly useful; these resulted from individuals whose original offence date or initial verdict date were unknown. I decided to eliminate this column from contention. From there, I first ran a logistic regression using the **executed_0_1** coumn as the response variable and the remaining columns as explanatory variables: **category_of_offence_Criminal**, **defendant_gender_Female**, **court_type_Military_court**, **defendant_status_in_Absentia**, and **governorate_sentences**. The code for that looked like this:
+I then began testing these variables for their significance in influencing the response variable to shift from 0 to 1, i.e. the extent to which they influenced whether or not an individual was ultimately executed.
 
 ```javascript
 [//]: # Building the first logistic regression with glm function
-glm.fit_1 <- glm(executed_0_1 ~ category_of_offence_Criminal + defendant_gender_Female +
-                 court_type_Military_court + defendant_status_in_Absentia + governorate_sentences,
-               data = EDPI_logit_1, family = binomial)
-
-summary(glm.fit_1)
+glm.fit_1 <- glm(executed_0_1 ~ as.factor(category_of_offence) + as.factor(offence) +
+                   governorate_sentences + as.factor(defendant_gender) + as.factor(court_type) + 
+                   days_btwn_offence_and_crim_1_judgement, data = EDPI, family = binomial)
 ```
 This first logistic regression produced the following result:
 
 <img src="images/glm_screenshot_1.png?raw=true"/>
 
-We notice based on this regression result that the **defendant_gender_Female** and **defendant_status_in_Absentia** variables are not significant (based on their high p-values), and the **category_of_offence_Criminal** variable is only significant at a p-value greater than 0.05. Based on those observations, I chose to remove **defendant_gender_Female** and **defendant_status_in_Absentia** and see if that improves the model:
+As above, this first regression found that whether a defendant was tried in a military court (as opposed to a civilian court) had major explanatory power for indicating whether an individual was likely to go on to be executed. However, the model did not find that any of the other variables fed to it (alleged offence, defendant gender, etc.) had any explanatory power. Based on my experience as a human rights defender working on the death penalty in Egypt, I believed that some of these variables were likely significant, but were being clouded by excessive inclusion of less relevant variables. With that in mind, I chose to run a second regression, pared down to the columns that I thought most likely to have real explanatory power. These included the category of offence allegedly committed (political vs criminal), the type of court the defendant was tried in (military vs civilian), and the number of death sentences handed down in the governorate where the individual in question was sentences to death. The code for this second regression looked like this:
 
 ```javascript
 [//]: # Building the second logistic regression with glm function
-glm.fit_2 <- glm(executed_0_1 ~ governorate_sentences + category_of_offence_Criminal +
-                  court_type_Military_court,
-                data = EDPI_logit_2, family = binomial)
-
-summary(glm.fit_2)
+glm.fit_2 <- glm(executed_0_1 ~ as.factor(category_of_offence) + as.factor(court_type)
+                 + governorate_sentences, data = EDPI, family = binomial)
 ```
 
 This second logistic regression produces this result:
 
-<img src="images/glm_screenshot_2.png?raw=true"/>
+<img src="images/edpilogit1.png?raw=true"/>
 
-We see now that **governorate_sentences**, **category_of_offence_Criminal**, and **court_type_Military_court** are all significant, and **category_of_offence_Criminal** has indeed become more significant based on removing **defendant_gender_Female** and **defendant_status_in_Absentia**.
+We see now that being charged with a criminal offence rather than a political one, being tried in a military tribunal rather than a civilian court, and the number of death sentences handed down in the relevant geographical area all appear to be strongly correlated with whether an individual defendant will go on to be executed.
+
+that **governorate_sentences**, **category_of_offence_Criminal**, and **court_type_Military_court** are all significant, and **category_of_offence_Criminal** has indeed become more significant based on removing **defendant_gender_Female** and **defendant_status_in_Absentia**.
 
 We can also calculate the Variance Inflaction Factor (VIF) values of each variable in the model to see if multicollinearity is a problem. We do this by installing the car package and running the VIF function:
 
@@ -123,7 +95,7 @@ vif(glm.fit_2)
 
 When we do so, we get this result:
 
-<img src="images/glm_screenshot_4.png?raw=true"/>
+<img src="images/edpilogit2.png?raw=true"/>
 
 Generally, VIF values below 5 indicate no multicollinearity, so it does not appear to be a problem here.
 
