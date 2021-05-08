@@ -104,36 +104,25 @@ Finally, we can also can also exponentiate the coefficients and interpret them a
 exp(coef(glm.fit_2))
 ```
 
+This code produces this output:
+
+<img src="images/EDPI_coeff.png?raw=true"/>
+
 
 ### Analysis and explanation
 
 This model tells us that:
 
-- Controlling for other variables, each additional death sentence handed down in the governorate where an individual was sentenced to death changes the log odds of that individual being executed by -0.0023 
-- Controlling for other variables, an individual being convicted of a criminal offence (as opposed to a political one) changes the log odds of that individual being executed by 1.05
-- Controlling for other variables, an individual being convicted in a military court (as opposed to a civilian court) changes the log odds of that individual being executed by 2.1
+- Controlling for other variables, the odds of eventual execution were 2.87 times (287%) higher for individuals charged with criminal offences, as opposed to political ones.
+- Controlling for other variables, the odds of eventual execution were 8.23 times (823%) higher for individuals convicted in a military tribunal, as opposed to a civilian court.
+- Controlling for other variables, the odds that an individual would go on to be executed were reduced by .003 times (.3%) for every additional death sentence handed down in the governorate where the defendant in question was sentenced to death.
 
-We can also exponentiate the coefficients and interpret them as odds-ratios: 
-
-```javascript
-exp(coef(glm.fit_2))
-```
-
-This produces this result:
-
-<img src="images/glm_screenshot_3.png?raw=true"/>
-
-Which tells us that: 
-
-- Controlling for other variables, each additional death sentence handed down in the governorate where an individual was sentenced to death decreases the  odds of that individual being executed by a factor of just less than 1 
-- Controlling for other variables, an individual being convicted of a criminal offence (as opposed to a political one) increases the odds of that individual being executed by a factor of 2.87
-- Controlling for other variables, an individual being convicted in a military court (as opposed to a civilian court) increases the  odds of that individual being executed by a factor of 8.23
 
 These results make sense. It is not surprising to me that as more death sentences are issued in a given governorate, that corresponds with a slightly reduced chance of any one individual sentenced to death in that governorate going on to be executed. I believe the explanation here is that the highest numbers of death sentences, in governorates like Minya, Cairo, and Giza, resulted from mass trials held in those locations, where hundreds of people were sentenced to death simultaneously in some cases. These trials garnered considerable international scrutiny, and thus were probably less likely to lead to actual executions. Conversely, it was likely easier and less controversial for the government to carry out executions related to death sentences resulting from smaller, lesser-known trials.
 
 It also makes sense that individuals convicted of criminal offences would be more likely to be executed. Criminal offences (as opposed to political ones) are generally viewed by Egyptian authorities as more cut-and-dried and less controversial. These tend to be cases where individuals are convicted of murder related to personal vendettas (for example), as compared to a political offence where a peaceful protestor may be accused of being a terrorist. The government is more likely to feel comfortable carrying out executions in the former cases than the latter, as they garner less international attention.
 
-Likewise, if an individual is tried in a military tribunal instead of a civilian court, that is often indiciative of the government's commitment to punishing that individual as harshly as possible. That is not to say that individuals convicted in military tribunals are more likely to be guilty, or are accused of more serious offences than those tried in civilian courts--this is very often not the case. Rather, the government trying an individual in a military tribunal makes clear the government's intent to deal with that person as harshly as possible, so it is not surprising that those cases were more likely to end in execution.
+Likewise, if an individual is tried in a military tribunal instead of a civilian court, that is often indicative of the government's commitment to punishing that individual as harshly as possible. That is not to say that individuals convicted in military tribunals are more likely to be guilty, or are accused of more serious offences than those tried in civilian courts--this is very often not the case. Rather, the government trying an individual in a military tribunal makes clear the government's intent to deal with that person as harshly as possible, so it is not surprising that those cases were more likely to end in execution.
 
 Overall, the human rights investigations field is ripe for applications of this kind of advanced statistical analysis, and indeed needs more of it; this is a big reason why I am pursuing a statistics and data science education. For example, one could use this type of logistic regression to make decisions about where to allocate casework resources within a human rights organization--if individuals sentenced to death for criminal offences, in military tribunals, and in governorates with overall fewer death sentences are more likely to be executed, organizations can focus their resources on those cases.
 
@@ -144,14 +133,12 @@ The full code for this project is as follows
 
 ```javascript
 [//]: # INSTALLING PACKAGES
-[//]: # Install fastDummies package:
-install.packages('fastDummies')
-[//]: # https://www.marsja.se/create-dummy-variables-in-r/#Dummy_Coding
-[//]: # https://www.statology.org/logistic-regression-in-r/#:~:text=%20How%20to%20Perform%20Logistic%20Regression%20in%20R,Model.%20The%20coefficients%20in%20the%20output...%20More%20
 install.packages('caret')
 install.packages('mctest')
-[//]: # car package needed to run VIF function later to determine multicollinearity
 install.packages('car')
+install.packages('tidyverse')
+install.packages('tidyr')
+install.packages('dplyr')
 
 
 [//]: # UNPACKING LIBRARIES
@@ -159,10 +146,7 @@ library(tidyr)
 library(tidyverse)
 library(dplyr)
 library(data.table)
-[//]: # car is for testing for multicollinearity below
 library(car)
-[//]: # fastdummies is for auto creation of dummy variables below
-library('fastDummies')
 
 
 [//]: # Set working directory
@@ -216,96 +200,48 @@ EDPI = EDPI %>%
                                            offence_governorate == "Suez" ~ 10,
                                            TRUE ~ 0))
 
-[//]: # create dummy variables:
-EDPI_logit <- dummy_cols(EDPI, select_columns = c('category_of_offence','offence', 'offence_year', 
-                                                  'offence_period', 'offence_governorate',
-                                                  'defendant_gender',
-                                                  'court_type', 'crim_1_verdict',
-                                                  "defendant_status", 'crim_1_judgement_year'))
+[//]: # Grouping all goverorates that handed down less than 150 death sentences into a single "other" category:
+EDPI$offence_governorate[EDPI$governorate_sentences < 150] <- "Other"
 
-[//]: # Retaining just the numerical and categorical variables you want. Note, the list below is all of the useful
-[//]: # ones, but you may need to pare that down further for more targeted regressions
-EDPI_logit_selected <- EDPI_logit[, c(2, 12:100)]
 
-[//]: # Fixing the column names
-setnames(EDPI_logit_selected, old = c('offence_Civilian clashes',
-                                   'offence_Membership in a terrorist organisation',
-                                   'offence_Sit-in clashes',
-                                   'offence_Storming government installations',
-                                   'offence_Terrorism toward religious minorities',
-                                   'offence_Terrorist Acts',
-                                   'offence_period_Adly Mansour',
-                                   'offence_governorate_Beni Suef',
-                                   'offence_governorate_El-Wadi El-Gedid',
-                                   'offence_governorate_Kafr El-Sheikh',
-                                   'offence_governorate_Mersa Matruh',
-                                   'offence_governorate_North Sinai',
-                                   'offence_governorate_Port Said',
-                                   'offence_governorate_Red Sea',
-                                   'offence_governorate_South Sinai',
-                                   'defendant_status_in Absentia',
-                                   'court_type_Civilian court',
-                                   'court_type_Military court',
-                                   'crim_1_verdict_Acquittal after Preliminary death sentence, not yet confirmed',
-                                   'crim_1_verdict_Death sentence',
-                                   'crim_1_verdict_Preliminary death sentence, not yet confirmed',
-                                   'crim_1_verdict_Prison term after preliminary death sentence, not yet confirmed'),
-         new = c('offence_Civilian_clashes','offence_Membership_in_a_terrorist_organisation',
-                 'offence_Sit_in_clashes',
-                 'offence_Storming_government_installations',
-                 'offence_Terrorism_toward_religious_minorities',
-                 'offence_Terrorist_Acts',
-                 'offence_period_Adly_Mansour',
-                 'offence_governorate_Beni_Suef',
-                 'offence_governorate_El_Wadi_El_Gedid',
-                 'offence_governorate_Kafr_El_Sheikh',
-                 'offence_governorate_Mersa_Matruh',
-                 'offence_governorate_North_Sinai',
-                 'offence_governorate_Port_Said',
-                 'offence_governorate_Red_Sea',
-                 'offence_governorate_South_Sinai',
-                 'defendant_status_in_Absentia',
-                 'court_type_Civilian_court',
-                 'court_type_Military_court',
-                 'crim_1_verdict_Acquittal_after_Preliminary_death_sentence_not_yet_confirmed',
-                 'crim_1_verdict_Death_sentence',
-                 'crim_1_verdict_Preliminary_death_sentence_not_yet_confirmed',
-                 'crim_1_verdict_Prison_term_after_preliminary_death_sentence_not_yet_confirmed'))
+[//]: # Resetting the factor levels. We do this because for each factor, the glm function will eliminate one level
+[//]: # of the factor as a reference and absorb it into the intercept. This is necessary, but we can reorder the
+[//]: # factors so that the levels of each factor used as the reference (and thus omitted) are not the important
+[//]: # ones we want included in our model. Note that the columns are currently ordered factors, and relevel only
+[//]: # works on unordered factors, so we change each column from an ordered factor to an unordered one:
 
-[//]: # Paring down the list for the first logistic regression. This selection was made by trial and error to see which variables would be
-[//]: # significant, as opposed to a stepwise process, which has issues as laid out here:
-[//]: # https://stats.stackexchange.com/questions/20836/algorithms-for-automatic-model-selection/20856#20856
-EDPI_logit_1 <- EDPI_logit_selected[, c(1, 6, 71, 74, 79, 5)]
+EDPI$category_of_offence <- factor(EDPI$category_of_offence, ordered = FALSE)
+EDPI$category_of_offence = relevel(EDPI$category_of_offence, ref = "Political")
+
+EDPI$offence <- factor(EDPI$offence, ordered = FALSE)
+EDPI$offence = relevel(EDPI$offence, ref = "Espionage")
+
+EDPI$offence_governorate <- factor(EDPI$offence_governorate, ordered = FALSE)
+EDPI$offence_governorate = relevel(EDPI$offence_governorate, ref = "Other")
+
+EDPI$defendant_gender <- factor(EDPI$defendant_gender, ordered = FALSE)
+EDPI$defendant_gender = relevel(EDPI$defendant_gender, ref = "Male")
+
+EDPI$court_type <- factor(EDPI$court_type, ordered = FALSE)
+EDPI$court_type = relevel(EDPI$court_type, ref = "Civilian court")
 
 [//]: # Building the first logistic regression with glm function
-[//]: # https://www.datacamp.com/community/tutorials/logistic-regression-R
-glm.fit_1 <- glm(executed_0_1 ~ category_of_offence_Criminal + defendant_gender_Female +
-                 court_type_Military_court + defendant_status_in_Absentia + governorate_sentences,
-               data = EDPI_logit_1, family = binomial)
+glm.fit_1 <- glm(executed_0_1 ~ as.factor(category_of_offence) + as.factor(offence) +
+                   governorate_sentences + as.factor(defendant_gender) + as.factor(court_type) + 
+                   days_btwn_offence_and_crim_1_judgement, data = EDPI, family = binomial)
 
-[//]: # We see from the summary below that gender and status are not significant, and category of offence is, but just barely,
-[//]: # so let's remove gender and status and see if that improves the model
 summary(glm.fit_1)
 
-[//]: # Paring down the list further for the second logistic regression.
-[//]: # https://stats.stackexchange.com/questions/20836/algorithms-for-automatic-model-selection/20856#20856
-EDPI_logit_2 <- EDPI_logit_selected[, c(1, 5, 6, 74)]
 
-[//]: # Building the second logistic regression with glm function
-[//]: # https://www.datacamp.com/community/tutorials/logistic-regression-R
-glm.fit_2 <- glm(executed_0_1 ~ governorate_sentences + category_of_offence_Criminal +
-                  court_type_Military_court,
-                data = EDPI_logit_2, family = binomial)
+[//]: # Refining the logistic regression with glm function
+glm.fit_2 <- glm(executed_0_1 ~ as.factor(category_of_offence) + as.factor(court_type)
+                 + governorate_sentences, data = EDPI, family = binomial)
 
-[//]: # Now we see that governorate_sentences, category_of_offence_Criminal, and _court_type_Military_court are all significant,
-[//]: # and category_of_offence_Criminal has gotten more significant based on removing status and gender
 summary(glm.fit_2)
 
 [//]: # Use vif to determine multicollinearity. VIF values below 5 reveal no multicollinearity
-[//]: # https://www.statology.org/logistic-regression-in-r/#:~:text=%20How%20to%20Perform%20Logistic%20Regression%20in%20R,Model.%20The%20coefficients%20in%20the%20output...%20More%20
 vif(glm.fit_2)
 
 [//]: # We can also exponentiate the coefficients and interpret them as odds-ratios: 
-[//]: # https://stats.idre.ucla.edu/r/dae/logit-regression/
 exp(coef(glm.fit_2))
 ```
