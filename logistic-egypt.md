@@ -83,8 +83,6 @@ This second logistic regression produces this result:
 
 We see now that being charged with a criminal offence rather than a political one, being tried in a military tribunal rather than a civilian court, and the number of death sentences handed down in the relevant geographical area all appear to be strongly correlated with whether an individual defendant will go on to be executed.
 
-that **governorate_sentences**, **category_of_offence_Criminal**, and **court_type_Military_court** are all significant, and **category_of_offence_Criminal** has indeed become more significant based on removing **defendant_gender_Female** and **defendant_status_in_Absentia**.
-
 We can also calculate the Variance Inflaction Factor (VIF) values of each variable in the model to see if multicollinearity is a problem. We do this by installing the car package and running the VIF function:
 
 ```javascript
