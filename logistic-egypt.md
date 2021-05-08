@@ -67,7 +67,7 @@ glm.fit_1 <- glm(executed_0_1 ~ as.factor(category_of_offence) + as.factor(offen
 ```
 This first logistic regression produced the following result:
 
-<img src="images/glm_screenshot_1.png?raw=true"/>
+<img src="images/edpilogit1.png.png?raw=true"/>
 
 As above, this first regression found that whether a defendant was tried in a military court (as opposed to a civilian court) had major explanatory power for indicating whether an individual was likely to go on to be executed. However, the model did not find that any of the other variables fed to it (alleged offence, defendant gender, etc.) had any explanatory power. Based on my experience as a human rights defender working on the death penalty in Egypt, I believed that some of these variables were likely significant, but were being clouded by excessive inclusion of less relevant variables. With that in mind, I chose to run a second regression, pared down to the columns that I thought most likely to have real explanatory power. These included the category of offence allegedly committed (political vs criminal), the type of court the defendant was tried in (military vs civilian), and the number of death sentences handed down in the governorate where the individual in question was sentences to death. The code for this second regression looked like this:
 
@@ -79,7 +79,7 @@ glm.fit_2 <- glm(executed_0_1 ~ as.factor(category_of_offence) + as.factor(court
 
 This second logistic regression produces this result:
 
-<img src="images/edpilogit1.png?raw=true"/>
+<img src="images/edpilogit2.png?raw=true"/>
 
 We see now that being charged with a criminal offence rather than a political one, being tried in a military tribunal rather than a civilian court, and the number of death sentences handed down in the relevant geographical area all appear to be strongly correlated with whether an individual defendant will go on to be executed.
 
