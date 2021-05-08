@@ -93,11 +93,16 @@ vif(glm.fit_2)
 
 When we do so, we get this result:
 
-<img src="images/edpilogit2.png?raw=true"/>
+<img src="images/EDPI_collinearity.png?raw=true"/>
 
 Generally, VIF values below 5 indicate no multicollinearity, so it does not appear to be a problem here.
 
-Note that I have chosen to retain and eliminate variables here manually, but this can also be automated through a stepwise regression process. Stepwise regressions have some [issues in the automation process](https://stats.stackexchange.com/questions/20836/algorithms-for-automatic-model-selection/20856#20856) that mean they are not always the soundest choice, especially if the analyst has a deep understanding of the likely relevance of different explanatory variables, but I do plan to redo this process in the future using an automated stepwise procedure to see if I get different results. I'm also aware that separating this dataset into training and testing groups could improve the accuracy of this model; that's something I'm going to get more into as I spend more time on machine learning principles in the coming months.
+
+Finally, we can also can also exponentiate the coefficients and interpret them as odds-ratios: 
+
+```javascript
+exp(coef(glm.fit_2))
+```
 
 
 ### Analysis and explanation
