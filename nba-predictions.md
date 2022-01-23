@@ -10,8 +10,6 @@ In this project, I took 30 years of historical NBA player data and built a serie
 
 The data for this project was scraped from [Basketball Reference](https://www.basketball-reference.com/), a leading online repository of NBA statistics. Compiling 30 years of data into one dataframe was a large task that involved quite a bit of code that I will not include here, but the end result is a data set that looks like the below, which I have already scaled: 
 
-<img src="images/nba_data_screenshot.png?raw=true"/>
-
 [![]("images/nba_data_screenshot.png?raw=true")]("images/nba_data_screenshot.png?raw=true")
 
 Each row of this dataframe corresponds to an an individual "player season." For example, there is one row for Lebron James's 2011-2012 season, a separate row for his 2010-2011 season, and so on, for every player that has played in the NBA since 1990. The columns in the data set represent a variety of different demographic and statistical categories. The demographic categories include thing like age and player position. The statistical categories include both what are called basic "counting stats" (things like points, rebounds, assists, etc.), as well as "advanced stats", which are statistical categories invented by both amateur and professional NBA analysts which amalgamate counting stats into purportedly more descriptive new statistical parameters. Advanced stats include things like true shooting percentage, three-point attempt rate, and assist percentage, for example.
