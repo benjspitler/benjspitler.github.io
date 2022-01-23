@@ -226,7 +226,7 @@ When sorted in descending order, my neural netowrk model predicted the following
 
 In this case, the results of the neural network and lasso regression were very similar, both in the players they identified as the likely top scorers and in their predictive accuracy. As you can see below, the top 12 for both models were the same individuals in different orders:
 
-<img src="images/all_results.png?raw=true/">
+<img src="images/comp_results.png?raw=true/">
 
 With this in mind, the lasso is a preferable model in this case because it offers broadly equivalent predictive accuracy to the neural net, but it is much more interpretable. In fact, we can examine the coefficients resulting from the lasso regression and see which variables the model believed to be more important, and which it zeroed out. Many are not surprising--total points scored, field goals made, and field goals attempted were highly predictive for a player's scoring in the subsequent season. But there are also some interesting insights here. For example, the number of turnovers a player committed was positively correlated with the next season's scoring, likely because players who commit lots of turnovers tend to be players who have the ball in their hands for much of the game, and thus take a lot of shots:
 
