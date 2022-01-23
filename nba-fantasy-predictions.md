@@ -8,13 +8,13 @@ In this project, I took 30 years of historical NBA player data and built a serie
 
 ### The raw data
 
-The data for this project was scraped from [Basketball Reference](https://www.basketball-reference.com/) a leading online repository of NBA statistics. Compiling 30 years of data into one dataframe was a large task that involved quite a bit of code that I will not include here, but the end result is a data set that looks like the below, which I have already scaled: 
+The data for this project was scraped from [Basketball Reference](https://www.basketball-reference.com/), a leading online repository of NBA statistics. Compiling 30 years of data into one dataframe was a large task that involved quite a bit of code that I will not include here, but the end result is a data set that looks like the below, which I have already scaled: 
 
 <img src="images/nba_data_screenshot.png?raw=true"/>
 
 Each row of this dataframe corresponds to an an individual "player season." For example, there is one row for Lebron James's 2011-2012 season, a separate row for his 2010-2011 season, and so on, for every player that has played in the NBA since 1990. The columns in the data set represent a variety of different demographic and statistical categories. These statistical categories include both what are called basic "counting stats" (things like points, rebounds, assists, etc.), as well as "advanced stats", which are statistical categories invented by both amateur and professional NBA analysts which amalgamate counting stats into purportedly more descriptive new statistical parameters. Advanced stats include things like true shooting percentage, three-point attempt rate, and assist percentage, for example.
 
-There is one important thing to note about this data which relates to the response variables I am attempting to predict. For each player in the 2021-2022 season, these models aim to predict:
+There are two important things to note about this data. The first relates to the response variables I am attempting to predict. For each player in the 2021-2022 season, these models aim to predict:
 
 - Total points
 - Total 3-pointers made
@@ -28,6 +28,52 @@ There is one important thing to note about this data which relates to the respon
 - Total blocks
 
 Accordingly, these statistics are the final ten categories of the dataframe. However, it should be noted that in each row, the response columns correspond to **one season later** than the rest of the columns in that row. For example, for the row corresponding to Kevin Durant's 2015-2016 season, the last ten columns of that row (total points, total 3-pointers made, total field goals attempted, etc.) correspond to Kevin Durant's 2016-2017 season. The data must be set up this way in order to predict future performance.
+
+The second note about this data is that I have included a column called 't'. This column is a continuous numerical variable that takes a larger value based on the recency of the value in the "season column". So a row corresponding to the most recent year represented in the data has 30 in the 't' column, a row corresponding to the second-most recent year represented in the data has 29 in the 't' column, and so on. Doing this is an easy (if relatively imprecise) way to weight data so that more recent data is given more predictive weight by machine learning algorithms. There are more sophisticated ways to do this (exponential smoothing or recurrent neural networks, for example), but this is the method I chose to implement within the context of the lasso.
+
+### Lasso regression
+
+The lasso is a handy tool to use in a case like this where we have many predictor variables that may be significant, and no clear way to choose which to include in our model. Broadly, the lasso does this for us by imposing a penalty term on the regression that shrinks to zero the coefficients of variables that the model deems to be less important.
+
+The first step was to split the data set into training and testing data. I chose to use the data from the 2015/2016 - 2018/2019 seasons as the training data and the data from the 2019/2020 season as the testing data. This approach was chosen such that the 2019/2020 comprises 30% of the total data, and then I selected enough seasons for the training data such that they cumulatively comprised 70% of the total. Note that I have read in the scaled data from a .csv as a dataframe called "nba_scaled_names":
+
+```javascript
+library(tidyverse)
+library(glmnet)
+
+nba_train_w_names = subset(nba_scaled_names, t > 24 & t < 29)
+nba_train <-  select(nba_train_w_names, -c(name, season))
+
+nba_test_w_names = subset(nba_scaled_names, t == 29)
+nba_test <-  select(nba_test_w_names, -c(name, season))
+```
+
+Next, I built x_train, y_train, x_test, and y_test objects for use with the lasso model. The glmnet() function, which I use below, requires matrices, not data frames. The model.matrix() function is helpful for this, as it creates a matrix corresponding to the predictors and also automatically transforms any qualitative variables into dummy variables. The latter property is important because glmnet() can also only take numerical, quantitative inputs:
+
+```javascript
+x_train <- model.matrix(tot_pts ~ ., nba_train)[, -1]
+y_train <- nba_train$tot_pts
+
+x_test <- model.matrix(tot_pts ~. , nba_test)[, -1]
+y_test <- nba_test$tot_pts
+```
+
+The next step was to use a grid-search cross-validation process to find the optimal value for lambda, which is the parameter that the lasso will use to penalize the regression and shrink coefficients. By default the glmnet() function, which I use below, performs lasso regression for an automatically selected range of lambda values. However, here I chose to implement the function over a grid of values essentially covering the full range of scenarios from the null model containing only the intercept, to the least squares fit:
+
+
+```javascript
+grid <- 10^seq(10, -2, length = 100)
+
+cv_out <- cv.glmnet(x_train, y_train, alpha = 1, lambda = grid)
+best_lam <- cv_out$lambda.min
+```
+
+Now, I can build the lasso model using glmnet():
+
+
+```javascript
+lasso_reg_nba <- glmnet(x_train, y_train, alpha = 0, family = "gaussian", lambda = best_lam)
+```
 
 
 The first step was to pare down the raw data that forms the back end of the EDPI ([downloadable here](https://egyptdeathpenaltyindex.com/download-data)) into a format that could serve as the basis for regression analysis. The EDPI data contains a wealth of information about individual defendants in capital trials in Egypt, including:
