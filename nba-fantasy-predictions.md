@@ -81,7 +81,7 @@ predict(lasso_reg_nba_full, s = best_lam, newx = x_t30)
 ```
 When sorted in descending order, my lasso model predicted the following top 12 scorers in the NBA in the 2021-2022 season:
 
-<img src="images/lasso_pts_leaders.png?raw=true" width = "300" height = "300">
+<img src="images/lasso_pts_leaders_all.png?raw=true" width = "300" height = "300">
 
 These results actually make a good deal of sense, though there are some glaring omissions and questionable inclusions, which I discuss later in this post.
 
