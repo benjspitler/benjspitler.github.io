@@ -93,19 +93,19 @@ Building a neural network model in R is somewhat complicated. R does have the ne
 
 The data preparation for the neural network was the same as for the lasso. The first step in building the neural network model and hypertuning its parameters is to lay out the structure of the model itself. First, I built an object called "FLAGS" that I will use later when I call on the model to iterate over different values for its hyperparameters:
 ```javascript
-#devtools::install_github("rstudio/keras") 
+[//]:#devtools::install_github("rstudio/keras") 
 library(keras)
 library(reticulate)
 use_python("C:/Users/benpi/anaconda3/envs/r-tensorflow/python.exe")
-#install.packages("ISLR2")
+[//]:#install.packages("ISLR2")
 library(ISLR2)
-#install.packages("tidyverse")
+[//]:#install.packages("tidyverse")
 library(tidyverse)
-#install.packages("ggplot2")
+[//]:#install.packages("ggplot2")
 library(ggplot2)
-#install.packages("caTools")
+[//]:#install.packages("caTools")
 library(caTools)
-#install.packages("tfruns")
+[//]:#install.packages("tfruns")
 library(tfruns)
 
 FLAGS <- flags(
