@@ -80,7 +80,8 @@ x_t30 <- model.matrix(tot_pts ~ ., t30_scaled_no_names)[, -1]
 predict(lasso_reg_nba_full, s = best_lam, newx = x_t30)
 ```
 When sorted in descending order, my lasso model predicted the following top 12 scorers in the NBA in the 2021-2022 season: 
-
+<img src="images/lasso_pts_leaders.png?raw=true"/>
+These results actually make a good deal of sense, though there are some glaring omissions and questionable inclusions, which I discuss later in this post.
 
 
 The first step was to pare down the raw data that forms the back end of the EDPI ([downloadable here](https://egyptdeathpenaltyindex.com/download-data)) into a format that could serve as the basis for regression analysis. The EDPI data contains a wealth of information about individual defendants in capital trials in Egypt, including:
