@@ -85,9 +85,102 @@ When sorted in descending order, my lasso model predicted the following top 12 s
 
 These results actually make a good deal of sense, and are largely consonant with 2020-2021's leading scorers and the leading scorers through half of the 2021-2022 season. That said, there are some glaring omissions and questionable inclusions, which I discuss later in this post.
 
-### Multilayer neural networks
+### Multilayer neural networks with hypertuning
 
-The other machine learning method I tested on this data was a multilayer neural network.
+The other machine learning method I tested on this data was a multilayer neural network. The appeal there is clear, as neural networks offer advanced predictive capabilities. The drawback is that a neural network is a black box model--while it may give us accurate predictions, we cannot learn much about how individual predictor variables contributed to the outcome. I discuss this below in my comparison of the lasso and neural network models.
+
+Building a neural network model in R is somewhat complicated. R does have the neuralnet() package, but for more advanced construction and hypertuning of neural networks, the keras platform for python is preferable. Luckily, through the Anaconda platform we can port keras, python, and tensorflow into R. I found instructions for how to do this on Stack Overflow [here](https://stackoverflow.com/questions/49684605/how-to-install-package-keras-in-r).
+
+The data preparation for the neural network was the same as for the lasso. The first step in building the neural network model and hypertuning its parameters is to lay out the structure of the model itself. First, I built an object called "FLAGS" that I will use later when I call on the model to iterate over different values for its hyperparameters:
+```javascript
+#devtools::install_github("rstudio/keras") 
+library(keras)
+library(reticulate)
+use_python("C:/Users/benpi/anaconda3/envs/r-tensorflow/python.exe")
+#install.packages("ISLR2")
+library(ISLR2)
+#install.packages("tidyverse")
+library(tidyverse)
+#install.packages("ggplot2")
+library(ggplot2)
+#install.packages("caTools")
+library(caTools)
+#install.packages("tfruns")
+library(tfruns)
+
+FLAGS <- flags(
+  flag_integer('neurons1', 32),
+  flag_numeric('dropout1', 0.2),
+  flag_integer('neurons2', 16),
+  flag_numeric('dropout2', 0.2),
+  flag_numeric('lr', 0.001)
+)
+```
+Next, I built a function called build_model that calls the keras_model_sequential() function and  builds the structure of the neural network. To do this, I had to specify layers for our sequential model. This model has two hidden layers, each with a dropout layer, and an output layer. These layers contain the various hyperparameters that I will tune.
+```javascript
+build_model <- function() {
+  nn_mod <- keras_model_sequential() 
+  nn_mod %>% 
+    
+    layer_dense(units = FLAGS$neurons1,
+                kernel_initializer = "uniform",
+                activation = "relu",
+                input_shape = ncol(x)) %>%
+    
+    layer_dropout(rate = FLAGS$dropout1) %>%
+    
+    layer_dense(units = FLAGS$neurons2, activation = "relu") %>%
+    
+    layer_dropout(rate = FLAGS$dropout2) %>%
+    
+    layer_dense(units = 1,
+                kernel_initializer = "uniform",
+                activation = "linear")
+  
+  nn_mod %>% compile(
+    loss = "mse",
+    optimizer = optimizer_adam(lr = FLAGS$lr),
+    metrics = list('mean_squared_error')
+  )
+  nn_mod
+}
+```
+Then I compile the model, call the new build_model() function, and specify an early stopping mechanism:
+```
+nn_mod %>% compile(
+    loss = "mse",
+    optimizer = optimizer_adam(lr = FLAGS$lr),
+    metrics = list('mean_squared_error')
+  )
+  nn_mod
+}
+
+nn_mod <- build_model()
+
+early_stop <- callback_early_stopping(monitor = "val_loss", patience = 20)
+```
+
+
+# Then, we compile our network model with compile(). To do this, we need to select three things. First is an optimizer
+# function. There are several of these, and the best one to choose depends to some extent on the characteristics of your
+# neural network model (see here: https://ruder.io/optimizing-gradient-descent/index.html). Below I have used adam. Here, we
+# tune the learning_rate, or lr, parameter, using our FLAGS object corresponding to lr. Learning rate is a
+# hyperparameter that controls how much to change the model in response to the estimated error each time the model
+# weights are updated. A value too small may result in a long training process that could get stuck, whereas a
+# value too large may result in learning a sub-optimal set of weights too fast or an unstable training process.
+# In addition to the optimizer function and learning rate, we have to choose a loss function; I have chosen 'mse', which is
+# appropriate for regression (see here https://neptune.ai/blog/keras-loss-functions).
+# Finally, we must select a metric to evaluate during training and validation. There are several regression metrics you can
+# choose (see here: https://keras.io/api/metrics/); I have chosen "mean_squared_error".
+
+
+
+
+
+
+
+
+
 
 The first step was to pare down the raw data that forms the back end of the EDPI ([downloadable here](https://egyptdeathpenaltyindex.com/download-data)) into a format that could serve as the basis for regression analysis. The EDPI data contains a wealth of information about individual defendants in capital trials in Egypt, including:
 
