@@ -8,7 +8,7 @@ In this project, I took 30 years of historical NBA player data and built a serie
 
 ### The raw data
 
-The data for this project was scraped from [Basketball Reference](https://www.basketball-reference.com/), a leading online repository of NBA statistics. Compiling 30 years of data into one dataframe was a large task that involved quite a bit of code that I will not include here, but the end result is a data set that looks like the below, which I have already scaled: 
+The data for this project was scraped from [Basketball Reference](https://www.basketball-reference.com/), a leading online repository of NBA statistics. Compiling 30 years of data into one dataframe was a large task that involved quite a bit of code that I will not include here, but the end result is a data set that looks like the below, which I have already scaled (only a few of the 60+ columns are visibe below):
 
 <img src="images/nba_data_screenshot.png?raw=true/">
 
