@@ -220,7 +220,7 @@ nn_ht_pts_pred_2021_2022 <- predict(best_model, x_t30)
 ```
 When sorted in descending order, my neural netowrk model predicted the following top 12 scorers in the NBA in the 2021-2022 season. Again, these broadly make sense and are consistent with the previous year's top performers, as well as the top scorers halfway through the 2021-2022 season, to some degree:
 
-<img src="images/nn_pts_leaders_tot.png?raw=true" width = "1000", height = "1000" />
+<img src="images/nn_pts_leaders_tot.png?raw=true/">
 
 ### Comparing and assessing the results
 
