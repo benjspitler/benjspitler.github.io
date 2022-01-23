@@ -1,5 +1,7 @@
 ## Using lasso regressions and multilayer neural networks to predict NBA player statistics and fantasy performance
 
+<img src="images/jokic.png?raw=true"/>
+
 This portfolio is largely intended to showcase the power of data science and analytics to drive human rights investigations. That said, those who know me will know that my one of my biggest passions (obsessions?) is NBA basketball, and I've recently been enjoying using machine learning methods to play around with NBA statistics. This is a tidy example of how methods like lasso regression and neural networks can serve as powerful predictive models when fed large, robust datasets, so I wanted to post my results.
 
 In this project, I took 30 years of historical NBA player data and built a series of machine learning models to predict how all non-rookie players would perform in the 2021-2022 NBA season, which was ongoing at the time of the writing of this post. I then fed the results of those predictive models into the alogrithms that top fantasy basketball leagues hosted by ESPN and Yahoo use to allocate player fantasy points. The result of this was a list of the predicted top performers in fantasy basketball for the 2021-2022 season.
