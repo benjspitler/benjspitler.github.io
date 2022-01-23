@@ -79,8 +79,10 @@ The final step is to use the lasso model to make predictions based on data from 
 x_t30 <- model.matrix(tot_pts ~ ., t30_scaled_no_names)[, -1]
 predict(lasso_reg_nba_full, s = best_lam, newx = x_t30)
 ```
-When sorted in descending order, my lasso model predicted the following top 12 scorers in the NBA in the 2021-2022 season: 
+When sorted in descending order, my lasso model predicted the following top 12 scorers in the NBA in the 2021-2022 season:
+
 <img src="images/lasso_pts_leaders.png?raw=true"/>
+
 These results actually make a good deal of sense, though there are some glaring omissions and questionable inclusions, which I discuss later in this post.
 
 
