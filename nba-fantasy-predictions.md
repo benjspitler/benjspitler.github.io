@@ -1,6 +1,6 @@
 ## Using lasso regressions and multilayer neural networks to predict NBA player statistics and fantasy performance
 
-<img src="images/jokic.png?raw=true"/>
+<img src="images/jokic.png?raw=true/">
 
 This portfolio is largely intended to showcase the power of data science and analytics to drive human rights investigations. That said, those who know me will know that my one of my biggest passions (obsessions?) is NBA basketball, and I've recently been enjoying using machine learning methods to play around with NBA statistics. This is a tidy example of how methods like lasso regression and neural networks can serve as powerful predictive models when fed large, robust datasets, so I wanted to post my results.
 
