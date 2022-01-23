@@ -207,8 +207,21 @@ best_model <- load_model_hdf5('nn_mod.h5')
 ```
 Now I can take the model that was fit on the training data and use it to make predictions on the test data, as well as assess test MSE and test R_square:
 ```javascript
-best_model <- load_model_hdf5('nn_mod.h5')
+nn_ht_pts_pred <- predict(best_model, x_test)
+test_MSE <- mean((y_test - nn_ht_pts_pred)^2)
+SSE <- sum((nn_ht_pts_pred - y_test)^2)
+SST <- sum((y_test - mean(y_test))^2)
+R_square <- 1 - (SSE / SST)
 ```
+Finally, I take the data corresponding to the 2020-2021 season (where the value in the 't' column == 30) and use my neural network model to make predictions based on that data for the 2021-2022 season. The 2020-2021 data is held in a dataframe called "x_t30":
+```javascript
+x_t30 <- model.matrix(tot_pts ~., t30_scaled_no_names)[, -1]
+nn_ht_pts_pred_2021_2022 <- predict(best_model, x_t30)
+```
+When sorted in descending order, my neural netowrk model predicted the following top 12 scorers in the NBA in the 2021-2022 season. Again, these broadly make sense and are consistent with the previous year's top performers, as well as the top scorers halfway through the 2021-2022 season, to some degree:
+
+<img src="images/nn_pts_leaders_tot.png?raw=true/">
+
 
 
 # Then, we compile our network model with compile(). To do this, we need to select three things. First is an optimizer
