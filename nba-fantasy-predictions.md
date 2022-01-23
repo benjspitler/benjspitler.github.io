@@ -150,6 +150,29 @@ Then I call the new build_model() function and specify an early stopping mechani
 nn_mod <- build_model()
 early_stop <- callback_early_stopping(monitor = "val_loss", patience = 20)
 ```
+Next I call the fit() function to fit the model on the training data:
+```javascript
+history <- nn_mod %>% fit(
+  x_train,
+  y_train,
+  epochs = 100,
+  batch_size = 32,
+  validation_split = 0.2,
+  verbose = 1,
+  callbacks = list(early_stop)
+)
+```
+Finally, I plot the model, evaluate its performance, and save it as a .h5 file:
+```javascript
+plot(history)
+score <- nn_mod %>% evaluate(
+  x_test, y_test,
+  verbose = 0
+)
+save_model_hdf5(nn_mod, 'nn_mod.h5')
+cat('Test loss:', score$loss, '\n')
+cat('Test accuracy:', score$mean_absolute_error, '\n')
+```
 
 
 # Then, we compile our network model with compile(). To do this, we need to select three things. First is an optimizer
