@@ -6,7 +6,27 @@ In this project, I took 30 years of historical NBA player data and built a serie
 
 ### The raw data
 
-The data for this project was scraped from [Basketball Reference](https://www.basketball-reference.com/) a leading online repository of NBA statistics. Compiling 30 years of data into one dataframe was a large task that involved quite a bit of code that I will not include here, but the end result is a data set that looks like the below. Each row of this dataframe corresponds to an an individual "player season." For example, there is one row for Lebron James's 2011-2012 season, a separate row for his 2010-2011 season, and so on, for every player that has played in the NBA since 1990. The columns in the data set represent a variety of different demographic and statistical categories. These statistical categories include both what are called basic "counting stats" (things like points, rebounds, assists, etc.), as well as "advanced stats", which are statistical categories invented by both amateur and professional NBA analysts which amalgamate counting stats into purportedly more descriptive new statistical parameters. Advanced stats include things like true shooting percentage, three-point attempt rate, and assist percentage, for example.
+The data for this project was scraped from [Basketball Reference](https://www.basketball-reference.com/) a leading online repository of NBA statistics. Compiling 30 years of data into one dataframe was a large task that involved quite a bit of code that I will not include here, but the end result is a data set that looks like the below.
+
+<img src="images/nba_data_screenshot.png?raw=true"/>
+
+Each row of this dataframe corresponds to an an individual "player season." For example, there is one row for Lebron James's 2011-2012 season, a separate row for his 2010-2011 season, and so on, for every player that has played in the NBA since 1990. The columns in the data set represent a variety of different demographic and statistical categories. These statistical categories include both what are called basic "counting stats" (things like points, rebounds, assists, etc.), as well as "advanced stats", which are statistical categories invented by both amateur and professional NBA analysts which amalgamate counting stats into purportedly more descriptive new statistical parameters. Advanced stats include things like true shooting percentage, three-point attempt rate, and assist percentage, for example.
+
+There is one important thing to note about this data which relates to the response variables I am attempting to predict. For each player in the 2021-2022 season, these models aim to predict:
+
+- Total points
+- Total 3-pointers made
+- Total field goals attempted
+- Total field goals made
+- Total free throws attempted
+- Total free throws made
+- Total rebounds
+- Total assists
+- Total steals
+- Total blocks
+
+Accordingly, these statistics are the final ten categories of the dataframe. However, it should be noted that in each row, the response columns correspond to **one season later** than the rest of the columns in that row. For example, for the row corresponding to Kevin Durant's 2015-2016 season, the last ten columns of that row (total points, total 3-pointers made, total field goals attempted, etc.) correspond to Kevin Durant's 2016-2017 season. The data must be set up this way in order to predict future performance.
+
 
 The first step was to pare down the raw data that forms the back end of the EDPI ([downloadable here](https://egyptdeathpenaltyindex.com/download-data)) into a format that could serve as the basis for regression analysis. The EDPI data contains a wealth of information about individual defendants in capital trials in Egypt, including:
 
