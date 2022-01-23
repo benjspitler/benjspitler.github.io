@@ -12,7 +12,7 @@ The data for this project was scraped from [Basketball Reference](https://www.ba
 
 <img src="images/nba_data_screenshot.png?raw=true"/>
 
-Each row of this dataframe corresponds to an an individual "player season." For example, there is one row for Lebron James's 2011-2012 season, a separate row for his 2010-2011 season, and so on, for every player that has played in the NBA since 1990. The columns in the data set represent a variety of different demographic and statistical categories. These statistical categories include both what are called basic "counting stats" (things like points, rebounds, assists, etc.), as well as "advanced stats", which are statistical categories invented by both amateur and professional NBA analysts which amalgamate counting stats into purportedly more descriptive new statistical parameters. Advanced stats include things like true shooting percentage, three-point attempt rate, and assist percentage, for example.
+Each row of this dataframe corresponds to an an individual "player season." For example, there is one row for Lebron James's 2011-2012 season, a separate row for his 2010-2011 season, and so on, for every player that has played in the NBA since 1990. The columns in the data set represent a variety of different demographic and statistical categories. The demographic categories include thing like age and player position. The statistical categories include both what are called basic "counting stats" (things like points, rebounds, assists, etc.), as well as "advanced stats", which are statistical categories invented by both amateur and professional NBA analysts which amalgamate counting stats into purportedly more descriptive new statistical parameters. Advanced stats include things like true shooting percentage, three-point attempt rate, and assist percentage, for example.
 
 There are two important things to note about this data. The first relates to the response variables I am attempting to predict. For each player in the 2021-2022 season, these models aim to predict:
 
@@ -85,6 +85,9 @@ When sorted in descending order, my lasso model predicted the following top 12 s
 
 These results actually make a good deal of sense, and are largely consonant with 2020-2021's leading scorers and the leading scorers through half of the 2021-2022 season. That said, there are some glaring omissions and questionable inclusions, which I discuss later in this post.
 
+### Multilayer neural networks
+
+The other machine learning method I tested on this data was a multilayer neural network.
 
 The first step was to pare down the raw data that forms the back end of the EDPI ([downloadable here](https://egyptdeathpenaltyindex.com/download-data)) into a format that could serve as the basis for regression analysis. The EDPI data contains a wealth of information about individual defendants in capital trials in Egypt, including:
 
