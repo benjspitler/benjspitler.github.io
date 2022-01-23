@@ -173,6 +173,42 @@ save_model_hdf5(nn_mod, 'nn_mod.h5')
 cat('Test loss:', score$loss, '\n')
 cat('Test accuracy:', score$mean_absolute_error, '\n')
 ```
+In order to tune the hyperparameters of this model, I save all of the above code as its own .R file, titled "nn_ht_mult_reg_nba.R", which I then called in the code below. The next step was to build a list object called par that contains the series of values that I want the model to consider for its hyperparemeters:
+```javascript
+par <- list(
+  dropout1 = c(0.2,0.3,0.4),
+  dropout2 = c(0.2,0.3,0.4),
+  neurons1 = c(32,64,128,256),
+  neurons2 = c(16,32,64,128),
+  lr = c(0.001,0.01,0.1)
+)
+```
+Then I call the tuning_run function from the tf_runs library and feed it my nn_ht_mult_reg_nba.R file, which generates and compiles the model and then fits it on the training data. I also provided the par object to the flags argument. I note here that since I specified 3 values for dropout1, 3 for dropout2, 4 for neurons1, 4 for neurons2, and 3 for lr, there are 432 possible combinations of the tuning parameters (3*3*4*4*3). Iterating over that many combinations would take my laptop hours, so i have passed 0.1 to the "sample" argument, indicating that I want the model to sample only 10% of the possible hyperparameter combinations for a total of 44 runs, which is what happens here.
+```javascript
+runs <- tuning_run("C:/Users/benpi/OneDrive/Documents/Coding/R projects/nn_ht_mult_reg_nba.R",
+                   runs_dir = '_nba_reg_mult_tuning', sample = 0.1, flags = par)
+```
+Once all 44 runs are finished, I find the run with the lowest validation mean squared error and save that as best_run
+```javascript
+best_run <- ls_runs(order = metric_val_mean_squared_error, decreasing= T, runs_dir = '_nba_reg_mult_tuning')[1,]
+```
+Then, I call the training_run() function, to which I feed the nn_ht_mult_reg_nba.R file, containing the structure of the neural network model and the code to fit it on the training data. I also specify that training_run() should use the best hyperparameters identified by tuning_run:
+```javascript
+run <- training_run('nn_ht_mult_reg_nba.R',flags = list(
+  dropout1 = best_run$flag_dropout1,
+  dropout2 = best_run$flag_dropout2,
+  neurons1 = best_run$flag_neurons1,
+  neurons1 = best_run$flag_neurons2,
+  lr = best_run$flag_lr))
+```
+Once training_run() completes I load the nn_mod.h5 file, which has been saved by training_run using the ideal hyperparameters identified by tuning_run(), and save it as best_model:
+```javascript
+best_model <- load_model_hdf5('nn_mod.h5')
+```
+Now I can take the model that was fit on the training data and use it to make predictions on the test data, as well as assess test MSE and test R_square:
+```javascript
+best_model <- load_model_hdf5('nn_mod.h5')
+```
 
 
 # Then, we compile our network model with compile(). To do this, we need to select three things. First is an optimizer
