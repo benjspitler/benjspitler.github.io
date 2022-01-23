@@ -81,9 +81,9 @@ predict(lasso_reg_nba_full, s = best_lam, newx = x_t30)
 ```
 When sorted in descending order, my lasso model predicted the following top 12 scorers in the NBA in the 2021-2022 season:
 
-<img src="images/lasso_pts_leaders_all.png?raw=true/">
+<img src="images/lasso_pts_leaders_tot.png?raw=true/">
 
-These results actually make a good deal of sense, though there are some glaring omissions and questionable inclusions, which I discuss later in this post.
+These results actually make a good deal of sense, and are largely consonant with 2020-2021's leading scorers and the leading scorers through half of the 2021-2022 season. That said, there are some glaring omissions and questionable inclusions, which I discuss later in this post.
 
 
 The first step was to pare down the raw data that forms the back end of the EDPI ([downloadable here](https://egyptdeathpenaltyindex.com/download-data)) into a format that could serve as the basis for regression analysis. The EDPI data contains a wealth of information about individual defendants in capital trials in Egypt, including:
