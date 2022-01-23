@@ -116,7 +116,7 @@ FLAGS <- flags(
   flag_numeric('lr', 0.001)
 )
 ```
-Next, I built a function called build_model that calls the keras_model_sequential() function and  builds the structure of the neural network. To do this, I had to specify layers for our sequential model. This model has two hidden layers, each with a dropout layer, and an output layer. These layers contain the various hyperparameters that I will tune.
+Next, I built a function called build_model that calls the keras_model_sequential() function and  builds the structure of the neural network. This model has two hidden layers, each with a dropout layer, and an output layer. These layers contain the various hyperparameters that I will tune.
 ```javascript
 build_model <- function() {
   nn_mod <- keras_model_sequential() 
