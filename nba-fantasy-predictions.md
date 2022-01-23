@@ -33,7 +33,7 @@ The second note about this data is that I have included a column called 't'. Thi
 
 ### Lasso regression
 
-The lasso is a handy tool to use in a case like this where we have many predictor variables that may be significant, and no clear way to choose which to include in our model. Broadly, the lasso does this for us by imposing a penalty term on the regression that shrinks to zero the coefficients of variables that the model deems to be less important.
+The lasso is a handy tool to use in a case like this where we have many predictor variables that may be significant, and no clear way to choose which to include in our model. Broadly, the lasso does this for us by imposing a penalty term on the regression that shrinks to zero the coefficients of variables that the model deems to be less important. Below, I outline my approach to predicting total points for each player; I repeated this process ten times, building one model for each statistical category I wanted to predict.
 
 The first step was to split the data set into training and testing data. I chose to use the data from the 2015/2016 - 2018/2019 seasons as the training data and the data from the 2019/2020 season as the testing data. This approach was chosen such that the 2019/2020 comprises 30% of the total data, and then I selected enough seasons for the training data such that they cumulatively comprised 70% of the total. Note that I have read in the scaled data from a .csv as a dataframe called "nba_scaled_names":
 
@@ -65,6 +65,22 @@ Next, I built the lasso model using glmnet():
 ```javascript
 lasso_reg_nba <- glmnet(x_train, y_train, alpha = 0, family = "gaussian", lambda = best_lam)
 ```
+From there, I used the model I fit on the training data to make predictions on the test data, and calculated the test mean squared error and test R-squared:
+```javascript
+lasso_pred_nba <- predict(lasso_reg_nba, s = best_lam, newx = x_test)
+test_MSE <- mean((lasso_pred_nba - y_test)^2)
+SSE <- sum((lasso_pred_nba - y_test)^2)
+SST <- sum((y_test - mean(y_test))^2)
+R_square <- 1 - SSE / SST
+```
+This results in a test R-squared of 0.856.
+The final step is to use the lasso model to make predictions based on data from the most recent NBA season, which is the 2019-2020 season. These are the rows for which the value in the t column in the data set == 30. I scaled this data and stored it in a dataframe called t30_no_names. First, I created a matrix object for use with the lasso regression, and then I made predictions on that data:
+```javascript
+x_t30 <- model.matrix(tot_pts ~ ., t30_scaled_no_names)[, -1]
+predict(lasso_reg_nba_full, s = best_lam, newx = x_t30)
+```
+When sorted in descending order, my lasso model predicted the following top 12 scorers in the NBA in the 2021-2022 season: 
+
 
 
 The first step was to pare down the raw data that forms the back end of the EDPI ([downloadable here](https://egyptdeathpenaltyindex.com/download-data)) into a format that could serve as the basis for regression analysis. The EDPI data contains a wealth of information about individual defendants in capital trials in Egypt, including:
