@@ -77,7 +77,7 @@ This results in a test R-squared of 0.856.
 The final step is to use the lasso model to make predictions based on data from the most recent NBA season, which is the 2019-2020 season. These are the rows for which the value in the t column in the data set == 30. I scaled this data and stored it in a dataframe called t30_no_names. First, I created a matrix object for use with the lasso regression, and then I made predictions on that data:
 ```javascript
 x_t30 <- model.matrix(tot_pts ~ ., t30_scaled_no_names)[, -1]
-predict(lasso_reg_nba_full, s = best_lam, newx = x_t30)
+predict(lasso_reg_nba, s = best_lam, newx = x_t30)
 ```
 When sorted in descending order, my lasso model predicted the following top 12 scorers in the NBA in the 2021-2022 season:
 
