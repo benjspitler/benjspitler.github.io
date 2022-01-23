@@ -47,7 +47,6 @@ nba_train <-  select(nba_train_w_names, -c(name, season))
 nba_test_w_names = subset(nba_scaled_names, t == 29)
 nba_test <-  select(nba_test_w_names, -c(name, season))
 ```
-
 Next, I built x_train, y_train, x_test, and y_test objects for use with the lasso model. The glmnet() function, which I use below, requires matrices, not data frames. The model.matrix() function is helpful for this, as it creates a matrix corresponding to the predictors and also automatically transforms any qualitative variables into dummy variables. The latter property is important because glmnet() can also only take numerical, quantitative inputs:
 
 ```javascript
@@ -68,7 +67,7 @@ cv_out <- cv.glmnet(x_train, y_train, alpha = 1, lambda = grid)
 best_lam <- cv_out$lambda.min
 ```
 
-Now, I can build the lasso model using glmnet():
+Next, I built the lasso model using glmnet():
 
 
 ```javascript
