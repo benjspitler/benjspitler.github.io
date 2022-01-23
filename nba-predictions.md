@@ -222,7 +222,7 @@ When sorted in descending order, my neural netowrk model predicted the following
 
 <img src="images/nn_pts_leaders_tot.png?raw=true/">
 
-### Comparing the results
+### Comparing and assessing the results
 
 In this case, the results of the neural network and lasso regression were very similar, both in the players they identified as the likely top scorers and in their predictive accuracy. As you can see below, the top 12 for both models were the same individuals in different orders:
 
@@ -232,3 +232,4 @@ With this in mind, the lasso is a preferable model in this case because it offer
 
 <img src="images/coef_table.png?raw=true/">
 
+Overall, I think the results here are probably good not great. There are a few issues. One, which couldn't really be avoided, is the inclusion of highly ranked players who in reality have missed much or all of the 2021-2022 season so far due to injury, such as Zion Williamson and Damian Lillard. The models of course do not know not to include those players, and thus rank them highly. There are a couple of larger issues here, though, both of which have to do with recency bias. One is the exclusion of certain players, namely Kevin Durant. Durant may be the best basketball player in the world, but he played no games in the 2019-2020 season and only 35 games in the 2020-2021 season, both due to injury. Based on that, the models have ranked him quite low for 2021-2022. That indicates to me that both the lasso and the neural network are exhibiting considerable recency bias. Similarly, 
