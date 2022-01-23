@@ -48,28 +48,20 @@ nba_test_w_names = subset(nba_scaled_names, t == 29)
 nba_test <-  select(nba_test_w_names, -c(name, season))
 ```
 Next, I built x_train, y_train, x_test, and y_test objects for use with the lasso model. The glmnet() function, which I use below, requires matrices, not data frames. The model.matrix() function is helpful for this, as it creates a matrix corresponding to the predictors and also automatically transforms any qualitative variables into dummy variables. The latter property is important because glmnet() can also only take numerical, quantitative inputs:
-
 ```javascript
 x_train <- model.matrix(tot_pts ~ ., nba_train)[, -1]
 y_train <- nba_train$tot_pts
-
 x_test <- model.matrix(tot_pts ~. , nba_test)[, -1]
 y_test <- nba_test$tot_pts
 ```
-
 The next step was to use a grid-search cross-validation process to find the optimal value for lambda, which is the parameter that the lasso will use to penalize the regression and shrink coefficients. By default the glmnet() function, which I use below, performs lasso regression for an automatically selected range of lambda values. However, here I chose to implement the function over a grid of values essentially covering the full range of scenarios from the null model containing only the intercept, to the least squares fit:
-
-
 ```javascript
 grid <- 10^seq(10, -2, length = 100)
 
 cv_out <- cv.glmnet(x_train, y_train, alpha = 1, lambda = grid)
 best_lam <- cv_out$lambda.min
 ```
-
 Next, I built the lasso model using glmnet():
-
-
 ```javascript
 lasso_reg_nba <- glmnet(x_train, y_train, alpha = 0, family = "gaussian", lambda = best_lam)
 ```
