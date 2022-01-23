@@ -145,18 +145,9 @@ build_model <- function() {
   nn_mod
 }
 ```
-Then I compile the model, call the new build_model() function, and specify an early stopping mechanism:
-```
-nn_mod %>% compile(
-    loss = "mse",
-    optimizer = optimizer_adam(lr = FLAGS$lr),
-    metrics = list('mean_squared_error')
-  )
-  nn_mod
-}
-
+Then I call the new build_model() function and specify an early stopping mechanism:
+```javascript
 nn_mod <- build_model()
-
 early_stop <- callback_early_stopping(monitor = "val_loss", patience = 20)
 ```
 
