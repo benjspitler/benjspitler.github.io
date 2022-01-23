@@ -183,7 +183,7 @@ par <- list(
   lr = c(0.001,0.01,0.1)
 )
 ```
-Then I call the tuning_run function from the tf_runs library and feed it my nn_ht_mult_reg_nba.R file, which generates and compiles the model and then fits it on the training data. I also provided the par object to the flags argument. I note here that since I specified 3 values for dropout1, 3 for dropout2, 4 for neurons1, 4 for neurons2, and 3 for lr, there are 432 possible combinations of the tuning parameters (3*3*4*4*3). Iterating over that many combinations would take my laptop hours, so i have passed 0.1 to the "sample" argument, indicating that I want the model to sample only 10% of the possible hyperparameter combinations for a total of 44 runs, which is what happens here.
+Then I call the tuning_run function from the tf_runs library and feed it my nn_ht_mult_reg_nba.R file, which generates and compiles the model and then fits it on the training data. I also provided the par object to the flags argument. I note here that since I specified 3 values for dropout1, 3 for dropout2, 4 for neurons1, 4 for neurons2, and 3 for lr, there are 432 possible combinations of the tuning parameters (3x3x4x4x3). Iterating over that many combinations would take my laptop hours, so i have passed 0.1 to the "sample" argument, indicating that I want the model to sample only 10% of the possible hyperparameter combinations for a total of 44 runs, which is what happens here.
 ```javascript
 runs <- tuning_run("C:/Users/benpi/OneDrive/Documents/Coding/R projects/nn_ht_mult_reg_nba.R",
                    runs_dir = '_nba_reg_mult_tuning', sample = 0.1, flags = par)
