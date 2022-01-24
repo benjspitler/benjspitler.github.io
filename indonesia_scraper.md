@@ -52,11 +52,7 @@ button_element <- remote_driver$findElement(using = 'id', value = 'search-btn1')
 [//]: #Click search button
 button_element$clickElement()
 ```
-This brings up the table that I want to scrape, which looks like this:
-
-<img src="images/indo_table_screenshot.png?raw=true"/>
-
-However, while I did a search for "Kebakaran Hutan", which should in theory restrict the results to only those cases which had a value of "Kebakaran Hutan" in the "Klasifikasi Perkara" field, in practice cases may appear that have some reference to "Kebakaran Hutan" elsewhere in their text. Accordingly, I needed to next sort this table to bring those cases to the top which truly had a value of "Kebakaran Hutan" in the "Klasifikasi Perkara" field by directing R to click on the "Klasifikasi Perkara" heading at the top of the table:
+This brings up the table that I want to scrape, which looks like the screenshot at the top of this post. However, while I did a search for "Kebakaran Hutan", which should in theory restrict the results to only those cases which had a value of "Kebakaran Hutan" in the "Klasifikasi Perkara" field, in practice cases may appear that have some reference to "Kebakaran Hutan" elsewhere in their text. Accordingly, I needed to next sort this table to bring those cases to the top which truly had a value of "Kebakaran Hutan" in the "Klasifikasi Perkara" field by directing R to click on the "Klasifikasi Perkara" heading at the top of the table:
 ```javascript
 [//]: #Locate "klasifikasi perkara" field, so we can sort by it
 button_element2 <- remote_driver$findElement(using = 'xpath', value = "//table[@id='tablePerkaraAll']/tbody/tr/td[4]")
