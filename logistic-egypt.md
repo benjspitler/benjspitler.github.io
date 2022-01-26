@@ -1,4 +1,4 @@
-## Using KNN classification and logistic regressions in R to predict executions in Egypt
+## Building and bootstrapping KNN classification and logistic regression models in R to predict executions in Egypt
 
 As discussed [elsewhere](https://benjspitler.github.io/EDPI) in this portfolio, my prior human rights work with [Reprieve](https://reprieve.org/uk/) involved the creation of the [Egypt Death Penalty Index](https://egyptdeathpenaltyindex.com) (EDPI), a comprehensive database tracking all known capital trials in Egypt since 2013, and many from before then as well. The resulting data provides an important real-time view into the Egyptian government's application of capital punishment. The database allows human rights defenders to examine ongoing capital trials and identify individuals in need of legal assistance, which is largely how the EDPI has been used to date.
 
@@ -6,19 +6,9 @@ But given that the EDPI contains such rich historical information on hundreds of
 
 ### Paring down raw data
 
-The first step was to pare down the raw data that forms the back end of the EDPI ([downloadable here](https://egyptdeathpenaltyindex.com/download-data)) into a format that could serve as the basis for regression analysis. The EDPI data contains a wealth of information about individual defendants in capital trials in Egypt, including:
+The first step was to pare down the raw data that forms the back end of the EDPI ([downloadable here](https://egyptdeathpenaltyindex.com/download-data)) into a format that could serve as the basis for modeling. The EDPI data contains a wealth of information about individual defendants, all of which has important uses, but not all of it is useful for the purposes of predictive modeling. For this project, I used my domain expertise to narrow the data down to the variables I thought most relevant:
 
-- Demographic information about defendants, such as age, gender, birthplace, occupation, etc.
-- Situational information about alleged offences/crimes, such as time/place of alleged occurrence, type of offence, etc.
-- Procedural information about trials, such as the verdicts reached at different appeal phases, time periods in which judgements were handed down, presence/absence of defendants, whether a defendant was ultimately executed, etc.
-
-That data is rich and useful, but messy for the purposes of regression. It looks like this:
-
-<img src="images/EDPI_raw_screenshot.png?raw=true"/>
-
-Some of these pieces of metadata are better suited than others to serving as predictors. For example, information regarding when a final verdict was reached in a case allows us to determine which years in the past produced the most capital trials that led to executions, but that information is unlikely to help us predict the outcome of future cases. To prepare the data for use in a logistic regression process, I identified the variables most relevant for these predictive purposes, and settled on the following:
-
-- Whether or not an individual was ultimately executed (column name **executed_0_1** in the new, pared down dataset). This would be the response variable. Any individual who was ultimately executed received a 1 in this column, anyone who was not executed received a 0.
+- Whether or not an individual was ultimately executed (column name **executed_0_1**). This is be the response variable. Any individual who was ultimately executed received a 1 in this column, anyone who was not executed received a 0.
 - Whether the offence was "political" or "criminal" in nature--that is, whether  the alleged facts of the case and the perceived motivation for the commission of the offence were in some way connected to the political and societal changes that have arisen in Egypt since the January 2011 revolution or not (column name **category_of_offence**).
 - The gender of the defendant (column name **defendant_gender**).
 - Whether the defendant was tried in a civilian court or a military tribunal (column name **court_type**).
@@ -27,33 +17,53 @@ Some of these pieces of metadata are better suited than others to serving as pre
 - The number of overall death sentences handed down in the governorate where the individual in question was being tried (column name **governorate_sentences**).
 - The specific offence that a defendant was accused of (column name **offence**).
 
-### Dummies or factors?
+The final dataset looked like this:
 
-One of the mistakes I made during my first attempt at this analysis was to use R's fastDummies package to create dummy variables for each category. This meant that every factor value within the text columns received its own new column, wherein each row received a 1 or a 0. For example, the "offence" column initially contained a number of different death-eligible offenses that defendants were charged with--espionage, terrorist acts, murder, etc. When I used the fastDummies package, this created a new column for every possible offence (titled offence_espionage, offence_terrorist_acts, offence_murder, etc.), and each row received a 1 in the column pertaining to that defendant's alleged offence, and a 0 everywhere else. The problem there is that this is not a statistically sound way to approach logistic regression. Specifically, wherever there are factor variables, R's glm function will remove one "level" from each factor as a reference. Then, in the resulting logistic regression output, the coefficients for the other factor variables within that column express the extent to which those variables influenced the chosen response variable *compared to the reference level*." As such, including every level of a factor in a logistic regression model, like I initially tried to do with the fastDummies package, is incorrect, as it leaves no reference point for interpreting the other variables.
+<img src="images/EDPI_screenshot_full.png?raw=true"/>
 
-THe correct way to do this is actually to feed the factor variables to R's glm function using the as.factor kwarg. Before doing that, though, you can actually choose which level of each factor will be treated as the reference level by R--i.e. which level will be absorbed into the intercept. To do that, I coded each factor variable in the data as an unordered factor and then specified the reference level:
+### Building a logit model
 
+I started by omitting NA values from the data (necessary for the bootstrapping process used below). Then I split the data into training and test sets, with a 70/30 split. I used the sample.split() function from the caTools library, as this function preserves the relative ratio of zeroes and ones in the response column, ensuring that our training and test sets resemble each other:
+
+```javascript
+library(caTools)
+
+EDPI <- na.omit(EDPI)
+
+split = sample.split(EDPI$execution_status, SplitRatio = 0.70)
+EDPI_train = subset(EDPI, split==TRUE)
+EDPI_test = subset(EDPI, split==FALSE)
 ```
-EDPI$category_of_offence <- factor(EDPI$category_of_offence, ordered = FALSE)
-EDPI$category_of_offence = relevel(EDPI$category_of_offence, ref = "Political")
+Next, I built the logistic regression model using the glm() package:
+```javascript
+library(glmnet)
 
-EDPI$offence <- factor(EDPI$offence, ordered = FALSE)
-EDPI$offence = relevel(EDPI$offence, ref = "Espionage")
-
-EDPI$offence_governorate <- factor(EDPI$offence_governorate, ordered = FALSE)
-EDPI$offence_governorate = relevel(EDPI$offence_governorate, ref = "Other")
-
-EDPI$defendant_gender <- factor(EDPI$defendant_gender, ordered = FALSE)
-EDPI$defendant_gender = relevel(EDPI$defendant_gender, ref = "Male")
-
-EDPI$court_type <- factor(EDPI$court_type, ordered = FALSE)
-EDPI$court_type = relevel(EDPI$court_type, ref = "Civilian court")
+boot_log_model <- glm(execution_status ~ + category_of_offence + governorate_sentences + court_type +
+                      defendant_gender + days_btwn_offence_and_crim_1_judgement,
+                      data = EDPI2, family = binomial (link = 'logit'))
 ```
+Then, I fed the logit model to the Boot() function from the car library and specified 2000 bootstrapping samples:
+```javascript
+library(car)
 
- After reformatting the data, creating dummy variables, and removing unnecessary columns, we are left with a csv that looks like the below (when in table form). (see the bottom of this page for the full block of code I used for this project):
+results <- Boot(boot_log_model, f = coef, R = 2000)
+```
+Finally, I pulled out relevant information about the final boostrapped model, including coefficients and p-values:
+```javascript
+Names = names(results$t0)
+SEs = sapply(data.frame(results$t), sd)
+Coefs = as.numeric(results$t0)
+zVals = Coefs / SEs
+Pvals = 2*pnorm(-abs(zVals))
+Significant = ifelse(Pvals <= .001, "***", ifelse(Pvals > .001 & Pvals <= .01, "**", ifelse(Pvals > .01 & Pvals <= .05, "*",
+                                                                             ifelse(Pvals >.05 & Pvals <= .1, ".",
+                                                                                   " "))))
 
-<img src="images/EDPI_logit_raw_screenshot.png?raw=true"/>
-
+Formatted_Results = cbind(Names, Coefs, SEs, zVals, Pvals, Significant)
+Formatted_Results
+```
+The results looked like this:
+<img src="images/edpi_logit_coef.png?raw=true"/>
 
 ### Testing for significance
 
