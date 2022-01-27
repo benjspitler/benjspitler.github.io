@@ -6,7 +6,7 @@
 
 ---
 
-### [Using logistic regressions in R to predict executions in Egypt](/logistic-egypt)
+### [Building and bootstrapping logistic regression models to predict executions in Egypt](/logistic-egypt)
 <img src="images/bootstrap_screenshot.png?raw=true"/>
 
 ---
