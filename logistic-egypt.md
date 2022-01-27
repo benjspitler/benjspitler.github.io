@@ -1,5 +1,7 @@
 ## Building and bootstrapping a logistic regression model in R to predict executions in Egypt
 
+<img src="images/bootstrap_screenshot.png?raw=true"/>
+
 As discussed [elsewhere](https://benjspitler.github.io/EDPI) in this portfolio, my prior human rights work with [Reprieve](https://reprieve.org/uk/) involved the creation of the [Egypt Death Penalty Index](https://egyptdeathpenaltyindex.com) (EDPI), a comprehensive database tracking all known capital trials in Egypt since 2013, and many from before then as well. The resulting data provides an important real-time view into the Egyptian government's application of capital punishment. The database allows human rights defenders to examine ongoing capital trials and identify individuals in need of legal assistance, which is largely how the EDPI has been used to date.
 
 But given that the EDPI contains such rich historical information on hundreds of capital trials, I wondered if this information could also serve as the basis for machine learning modeling to predict the outcomes of future capital trials based on their characteristics. Specifically, I wondered if I could build models that would identify which factors related to a capital trial might increase the likelihood that a defendant would go on to be executed. In the EDPI dataset, each row represents one individual who received a prelmiinary death sentence in an Egyptian court. The dataset contains dozens of columns containing demographic and legal information about each individual, including age, gender, location of arrest, alleged offence, and details about what happened at each stage of the legal process in the individuals trial(s). Crucially, the dataset also indicates whether each individual indeed went on to be executed, or if some other outcome occured (acquittal, commutation, etc.). This is an ideal structure for classification modeling to predict how likely future individuals are to be executed, based on demographic and legal information. The project below represents my attempt to use logistic regression to answer this question.
@@ -118,208 +120,64 @@ avg_optimism <- mean(B$optimism)
 bootstrapped_auc = in_sample_auc - avg_optimism
 bootstrapped_auc
 ```
-Finally, I wanted to check for multicollinearity, to ensure that my model did not have correlated predictor variables
+Finally, I wanted to check for multicollinearity, to ensure that my model did not have correlated predictor variables. 
 ```javascript
 library(car)
 vif(boot_log_model)
 ```
-Generally, VIF values below 5 indicate no multicollinearity, so it does not appear to be a problem here:
+Generally, Variance Inflation Factor (VIF) values below 5 generally indicate no multicollinearity, so it does not appear to be a problem here:
 
 <img src="images/edpi_vif.png?raw=true"/>
 
 
+### Interpreting results and accuracy
 
-### Interpreting results
+As above, the two significant variables here were the number of death sentences previously handed down in the governorate where the death sentence in question occurred ("governorate_sentences") and trials that took place in a military court ("court_typeMilitary court"). If we exponentiate the coefficients for those variables, we get the following:
+```javascript
+exp(coef(boot_log_model))
+```
+<img src="images/EDPI_exp.png?raw=true"/>
 
+Based on the above, we could conclude: 
 
+- Controlling for other variables, the odds of eventual execution were 6.02 times (602%) higher for individuals convicted in a military tribunal, as opposed to a civilian court.
+- Controlling for other variables, the odds that an individual would go on to be executed were reduced by .002 times (0.2%) for every additional death sentence handed down in the governorate where the defendant in question was sentenced to death.
 
-### Testing for significance
+Intuitively, this makes sense. It has long been known that people sentenced to death in military trials at [especially at risk of being executed](https://www.hrw.org/news/2020/10/22/egypt-49-executions-10-days). It also tracks that people sentenced to death in governorates that have previously handed down large numbers of death sentences are less likely to be executed--many of the governorates where the most death sentences have been issued have received considerable negative international media attention, which tends to decrease the likelihood that executions are carried out.
 
-I then began testing these variables for their significance in influencing the response variable to shift from 0 to 1, i.e. the extent to which they influenced whether or not an individual was ultimately executed.
+Based on the significant variables, the intuitive interpretation of those variables, and the high bootstrapped AUC, this seems like a useful model. One important thing to check, however, is how this model's accuracy compares to the accuracy of a naive baseline model. To find this, we first calculate the accuracy of our current model. Based on popular convention, we will do this with a 50% probability threshold, meaning that if the model predicts that an individual had a more than 50% probability of execution, that will be counted as a "yes", and less than 50% probability of execution will be counted as a "no":
 
 ```javascript
-[//]: # Building the first logistic regression with glm function
-glm.fit_1 <- glm(executed_0_1 ~ as.factor(category_of_offence) + as.factor(offence) +
-                   governorate_sentences + as.factor(defendant_gender) + as.factor(court_type) + 
-                   days_btwn_offence_and_crim_1_judgement, data = EDPI, family = binomial)
+boot_log_probs <- predict(boot_log_model, type = "response", newdata = EDPI2)
+tbl <- table(boot_log_probs > 0.5, EDPI2$execution_status)
+accuracy = sum(diag(tbl))/sum(tbl)
 ```
-This first logistic regression produced the following result:
-
-<img src="images/edpilogit1.png?raw=true"/>
-
-As above, this first regression found that whether a defendant was tried in a military court (as opposed to a civilian court) had major explanatory power for indicating whether an individual was likely to go on to be executed. However, the model did not find that any of the other variables fed to it (alleged offence, defendant gender, etc.) had any explanatory power. Based on my experience as a human rights defender working on the death penalty in Egypt, I believed that some of these variables were likely significant, but were being clouded by excessive inclusion of less relevant variables. With that in mind, I chose to run a second regression, pared down to the columns that I thought most likely to have real explanatory power. These included the category of offence allegedly committed (political vs criminal), the type of court the defendant was tried in (military vs civilian), and the number of death sentences handed down in the governorate where the individual in question was sentences to death. The code for this second regression looked like this:
+The accuracy here is 97.57%, which is suspiciously high, given that AUC was only about 0.80. This suggests there are significant type I or type II errors--more on that in a minute. First, we will check the accuracy of the naive baseline model. To do that, we first find which class, 0 or 1, is more common in our response column. We find that there are more zeroes, so our naive baseline model will be to predict 0 (i.e. "not executed") for every case. We then take the number of zeroes in the data and divide it by the number of rows in the data to obtain our baseline model accuracy:
 
 ```javascript
-[//]: # Building the second logistic regression with glm function
-glm.fit_2 <- glm(executed_0_1 ~ as.factor(category_of_offence) + as.factor(court_type)
-                 + governorate_sentences, data = EDPI, family = binomial)
+nrow(subset(EDPI2, EDPI2$execution_status == 1))
+nrow(subset(EDPI2, EDPI2$execution_status == 0))
+nrow(subset(EDPI2, EDPI2$execution_status == 0))/nrow(EDPI2)
 ```
+Here, we see that our baseline model accuracy is ... 97.57%. This is exactly the same as our logit model, meaning that our logistic regression model is exactly as accurate as the baseline model. If we investigate further, we can see the reason for this:
+```javascript
+tbl <- table(boot_log_probs > 0.5, EDPI2$execution_status)
+tbl
+```
+If we run the above code, we see the culprit: using a 50% probability threshold, our model predicted that every individual in the dataset would **not** be executed, which is the same as our baseline model. At first glance, this might seem bad; if our logistic regression model is only as accurate as a naive baseline, is it even useful? But actually, yes, the logistic regression model is still quite useful, for a couple of reasons.
 
-This second logistic regression produces this result:
+First, we should note that 50% is a very arbitrary probability threshold when it comes to predicting something like whether an individual will be executed. There is no reason why a predicted probability of execution in excess of 50% should mean that someone "will" be executed, and a probability of less than 50% means that they will not. For example, if the model predicted than individual had a 40% likelihood of execution, that would still be cause for concern. And indeed, if we reduce our probability threshold, the model predicts many more executions.
 
-<img src="images/edpilogit2.png?raw=true"/>
-
-We see now that being charged with a criminal offence rather than a political one, being tried in a military tribunal rather than a civilian court, and the number of death sentences handed down in the relevant geographical area all appear to be strongly correlated with whether an individual defendant will go on to be executed.
-
-We can also calculate the Variance Inflaction Factor (VIF) values of each variable in the model to see if multicollinearity is a problem. We do this by installing the car package and running the VIF function:
+Second, the logistic regression model provides us with several pieces of important information that the baseline model does not. One such piece of information is the ranked probabilities of execution for every individual in the dataset:
 
 ```javascript
-install.packages('car')
-library(car)
-vif(glm.fit_2)
+execution_probabilities <- predict(boot_log_model, EDPI2, type = "response") 
+sort(execution_probabilities, decreasing = TRUE)
 ```
+We can append these probabilities to our original dataset and identify which individuals are at greatest risk of execution, which is a hugely useful piece of information. Additionally, we also know which variables are significantly correlated with increased likelihood of execution, which is important information, even as a heuristic device.
 
-When we do so, we get this result:
+### Use cases
 
-<img src="images/EDPI_collinearity.png?raw=true"/>
+I envision a number of important use cases for this kind of modeling. Imagine a human rights NGO that works to assist people facing death sentences in Egypt: with thousands of individuals sentenced to death in Egypt in recent years, it is difficult for human rights groups to know where to invest their limited resources. A sorted list of the individuals who are most likely to be executed would be a powerful tool for such organizations to use in prioritizing resource allocation. Coalitions of NGOs and political allies must also make similar decisions when deciding where to deploy trial monitoring resources. 
 
-Generally, VIF values below 5 indicate no multicollinearity, so it does not appear to be a problem here.
-
-
-Finally, we can also can also exponentiate the coefficients and interpret them as odds-ratios: 
-
-```javascript
-exp(coef(glm.fit_2))
-```
-
-This code produces this output:
-
-<img src="images/EDPI_coeff.png?raw=true"/>
-
-
-### Analysis and explanation
-
-This model tells us that:
-
-- Controlling for other variables, the odds of eventual execution were 2.87 times (287%) higher for individuals charged with criminal offences, as opposed to political ones.
-- Controlling for other variables, the odds of eventual execution were 8.23 times (823%) higher for individuals convicted in a military tribunal, as opposed to a civilian court.
-- Controlling for other variables, the odds that an individual would go on to be executed were reduced by .003 times (.3%) for every additional death sentence handed down in the governorate where the defendant in question was sentenced to death.
-
-
-These results make sense. It is not surprising to me that as more death sentences are issued in a given governorate, that corresponds with a slightly reduced chance of any one individual sentenced to death in that governorate going on to be executed. I believe the explanation here is that the highest numbers of death sentences, in governorates like Minya, Cairo, and Giza, resulted from mass trials held in those locations, where hundreds of people were sentenced to death simultaneously in some cases. These trials garnered considerable international scrutiny, and thus were probably less likely to lead to actual executions. Conversely, it was likely easier and less controversial for the government to carry out executions related to death sentences resulting from smaller, lesser-known trials.
-
-It also makes sense that individuals convicted of criminal offences would be more likely to be executed. Criminal offences (as opposed to political ones) are generally viewed by Egyptian authorities as more cut-and-dried and less controversial. These tend to be cases where individuals are convicted of murder related to personal vendettas (for example), as compared to a political offence where a peaceful protestor may be accused of being a terrorist. The government is more likely to feel comfortable carrying out executions in the former cases than the latter, as they garner less international attention.
-
-Likewise, if an individual is tried in a military tribunal instead of a civilian court, that is often indicative of the government's commitment to punishing that individual as harshly as possible. That is not to say that individuals convicted in military tribunals are more likely to be guilty, or are accused of more serious offences than those tried in civilian courts--this is very often not the case. Rather, the government trying an individual in a military tribunal makes clear the government's intent to deal with that person as harshly as possible, so it is not surprising that those cases were more likely to end in execution.
-
-Overall, the human rights investigations field is ripe for applications of this kind of advanced statistical analysis, and indeed needs more of it; this is a big reason why I am pursuing a statistics and data science education. For example, one could use this type of logistic regression to make decisions about where to allocate casework resources within a human rights organization--if individuals sentenced to death for criminal offences, in military tribunals, and in governorates with overall fewer death sentences are more likely to be executed, organizations can focus their resources on those cases.
-
-
-### Full code block
-
-The full code for this project is as follows
-
-```javascript
-[//]: # INSTALLING PACKAGES
-install.packages('caret')
-install.packages('mctest')
-install.packages('car')
-install.packages('tidyverse')
-install.packages('tidyr')
-install.packages('dplyr')
-
-
-[//]: # UNPACKING LIBRARIES
-library(tidyr)
-library(tidyverse)
-library(dplyr)
-library(data.table)
-library(car)
-
-
-[//]: # Set working directory
-setwd("C:/Users/benpi/OneDrive/Documents/EDPI")
-
-[//]: # Read in the original EDPI raw data in csv form
-EDPI <- read.csv("EDPI logistic regression csv.csv", header = TRUE, sep=",")
-
-[//]: # Select relevant columns
-EDPI <- EDPI[, c(1, 3, 6:8, 10:11, 21, 31, 34:37, 45)]
-
-[//]: # Change date formats
-EDPI$offence_date <- as.Date(EDPI$offence_date, "%d/%m/%Y")
-EDPI$crim_1_judgement_date <- as.Date(EDPI$crim_1_judgement_date, "%d/%m/%Y")
-
-[//]: # Create days_btwn_offence_and_crim_1_judgement column
-EDPI$days_btwn_offence_and_crim_1_judgement = EDPI$crim_1_judgement_date-EDPI$offence_date
-
-[//]: # Remove irrelevant values in defendant_status column
-EDPI <- subset(EDPI, EDPI$defendant_status!="Died before Referal to the Court" & EDPI$defendant_status!="Died during Procedures")
-
-[//]: # Adding column tracking how many death sentences occurred in each governorate
-EDPI = EDPI %>% 
-  mutate(governorate_sentences = case_when(offence_governorate == "Minya" ~ 1302,
-                                           offence_governorate == "Cairo" ~ 642,
-                                           offence_governorate == "Giza" ~ 533,
-                                           offence_governorate == "Sharqia" ~ 304,
-                                           offence_governorate == "Alexandria" ~ 189,
-                                           offence_governorate == "Qena" ~ 156,
-                                           offence_governorate == "Sohag" ~ 150,
-                                           offence_governorate == "Beheira" ~ 131,
-                                           offence_governorate == "Qalyubia" ~ 100,
-                                           offence_governorate == "Ismailia" ~ 98,
-                                           offence_governorate == "North Sinai" ~ 95,
-                                           offence_governorate == "Gharbia" ~ 89,
-                                           offence_governorate == "Kafr El-Sheikh" ~ 85,
-                                           offence_governorate == "Dakahlia" ~ 83,
-                                           offence_governorate == "Faiyum" ~ 68,
-                                           offence_governorate == "Monufia" ~ 66,
-                                           offence_governorate == "Asyut" ~ 54,
-                                           offence_governorate == "Damietta" ~ 47,
-                                           offence_governorate == "Port Said" ~ 42,
-                                           offence_governorate == "Red Sea" ~ 36,
-                                           offence_governorate == "unknown" ~ 34,
-                                           offence_governorate == "Aswan" ~ 31,
-                                           offence_governorate == "Beni Suef" ~ 25,
-                                           offence_governorate == "South Sinai" ~ 20,
-                                           offence_governorate == "Luxor" ~ 13,
-                                           offence_governorate == "El Wadi El-Gedid" ~ 11,
-                                           offence_governorate == "Mersa Matruh" ~ 10,
-                                           offence_governorate == "Suez" ~ 10,
-                                           TRUE ~ 0))
-
-[//]: # Grouping all goverorates that handed down less than 150 death sentences into a single "other" category:
-EDPI$offence_governorate[EDPI$governorate_sentences < 150] <- "Other"
-
-
-[//]: # Resetting the factor levels. We do this because for each factor, the glm function will eliminate one level
-[//]: # of the factor as a reference and absorb it into the intercept. This is necessary, but we can reorder the
-[//]: # factors so that the levels of each factor used as the reference (and thus omitted) are not the important
-[//]: # ones we want included in our model. Note that the columns are currently ordered factors, and relevel only
-[//]: # works on unordered factors, so we change each column from an ordered factor to an unordered one:
-
-EDPI$category_of_offence <- factor(EDPI$category_of_offence, ordered = FALSE)
-EDPI$category_of_offence = relevel(EDPI$category_of_offence, ref = "Political")
-
-EDPI$offence <- factor(EDPI$offence, ordered = FALSE)
-EDPI$offence = relevel(EDPI$offence, ref = "Espionage")
-
-EDPI$offence_governorate <- factor(EDPI$offence_governorate, ordered = FALSE)
-EDPI$offence_governorate = relevel(EDPI$offence_governorate, ref = "Other")
-
-EDPI$defendant_gender <- factor(EDPI$defendant_gender, ordered = FALSE)
-EDPI$defendant_gender = relevel(EDPI$defendant_gender, ref = "Male")
-
-EDPI$court_type <- factor(EDPI$court_type, ordered = FALSE)
-EDPI$court_type = relevel(EDPI$court_type, ref = "Civilian court")
-
-[//]: # Building the first logistic regression with glm function
-glm.fit_1 <- glm(executed_0_1 ~ as.factor(category_of_offence) + as.factor(offence) +
-                   governorate_sentences + as.factor(defendant_gender) + as.factor(court_type) + 
-                   days_btwn_offence_and_crim_1_judgement, data = EDPI, family = binomial)
-
-summary(glm.fit_1)
-
-
-[//]: # Refining the logistic regression with glm function
-glm.fit_2 <- glm(executed_0_1 ~ as.factor(category_of_offence) + as.factor(court_type)
-                 + governorate_sentences, data = EDPI, family = binomial)
-
-summary(glm.fit_2)
-
-[//]: # Use vif to determine multicollinearity. VIF values below 5 reveal no multicollinearity
-vif(glm.fit_2)
-
-[//]: # We can also exponentiate the coefficients and interpret them as odds-ratios: 
-exp(coef(glm.fit_2))
-```
+More broadly, having a sound statistical understanding of which factors are most correlated with executions is important from a qualitative standpoint, as it helps to indicate which issue areas require greater attention from human rights advocates and policymakers. For example, the findings of this modeling could certainly serve as the basis for a narrative report from a human rights organization focused on the dangers of Egypt's military court system. I really believe that these are crucial applications of data science that need to be more widely implemented in the human rights investigations field.
