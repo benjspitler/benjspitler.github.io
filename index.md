@@ -1,4 +1,3 @@
-## Portfolio
 ---
 
 ### [Using multilayer neural networks and the lasso to predict NBA player statistics](/nba-predictions)
