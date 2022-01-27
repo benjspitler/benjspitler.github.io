@@ -1,4 +1,4 @@
-## Building and bootstrapping a logistic regression model in R to predict executions in Egypt
+## Building and bootstrapping logistic regression models to predict executions in Egypt
 
 <img src="images/bootstrap_screenshot.png?raw=true"/>
 
