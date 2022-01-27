@@ -1,8 +1,8 @@
-## Building and bootstrapping KNN classification and logistic regression models in R to predict executions in Egypt
+## Building and bootstrapping a logistic regression model in R to predict executions in Egypt
 
 As discussed [elsewhere](https://benjspitler.github.io/EDPI) in this portfolio, my prior human rights work with [Reprieve](https://reprieve.org/uk/) involved the creation of the [Egypt Death Penalty Index](https://egyptdeathpenaltyindex.com) (EDPI), a comprehensive database tracking all known capital trials in Egypt since 2013, and many from before then as well. The resulting data provides an important real-time view into the Egyptian government's application of capital punishment. The database allows human rights defenders to examine ongoing capital trials and identify individuals in need of legal assistance, which is largely how the EDPI has been used to date.
 
-But given that the EDPI contains such rich historical information on hundreds of capital trials, I wondered if this information could also serve as the basis for machine learning modeling to predict the outcomes of future capital trials based on their characteristics. Specifically, I wondered if I could build models that would identify which factors related to a capital trial might increase the likelihood that a defendant would go on to be executed. In the EDPI dataset, each row represents one individual who received a prelmiinary death sentence in an Egyptian court. The dataset contains dozens of columns containing demographic and legal information about each individual, including age, gender, location of arrest, alleged offence, and details about what happened at each stage of the legal process in the individuals trial(s). Crucially, the dataset also indicates whether each individual indeed went on to be executed, or if some other outcome occured (acquittal, commutation, etc.). This is an ideal structure for classification modeling to predict how likely future individuals are to be executed, based on demographic and legal information. The project below represents my attempt to use logistic regression and K-nearest neighbors classification to answer this question.
+But given that the EDPI contains such rich historical information on hundreds of capital trials, I wondered if this information could also serve as the basis for machine learning modeling to predict the outcomes of future capital trials based on their characteristics. Specifically, I wondered if I could build models that would identify which factors related to a capital trial might increase the likelihood that a defendant would go on to be executed. In the EDPI dataset, each row represents one individual who received a prelmiinary death sentence in an Egyptian court. The dataset contains dozens of columns containing demographic and legal information about each individual, including age, gender, location of arrest, alleged offence, and details about what happened at each stage of the legal process in the individuals trial(s). Crucially, the dataset also indicates whether each individual indeed went on to be executed, or if some other outcome occured (acquittal, commutation, etc.). This is an ideal structure for classification modeling to predict how likely future individuals are to be executed, based on demographic and legal information. The project below represents my attempt to use logistic regression to answer this question.
 
 ### Paring down raw data
 
@@ -15,13 +15,12 @@ The first step was to pare down the raw data that forms the back end of the EDPI
 - Whether the defendant was tried _in absentia_ or was present during proceedings (column name **defendant_status**).
 - The amount of time elapsed between the defendant's alleged offence and the court reaching a verdict in that defendant's case in the first instance (column name **days_btwn_offence_and_crim_1_judgement**).
 - The number of overall death sentences handed down in the governorate where the individual in question was being tried (column name **governorate_sentences**).
-- The specific offence that a defendant was accused of (column name **offence**).
 
 The final dataset looked like this:
 
 <img src="images/EDPI_screenshot_full.png?raw=true"/>
 
-### Building a logit model
+### Building and bootstrapping a logit model
 
 I started by omitting NA values from the data (necessary for the bootstrapping process used below). Then I split the data into training and test sets, with a 70/30 split. I used the sample.split() function from the caTools library, as this function preserves the relative ratio of zeroes and ones in the response column, ensuring that our training and test sets resemble each other:
 
@@ -64,6 +63,75 @@ Formatted_Results
 ```
 The results looked like this:
 <img src="images/edpi_logit_coef.png?raw=true"/>
+
+From this, we see that the model has identified two significant variables correlated with executions: the number of death sentences previously handed down in the governorate where the death sentence in question occurred ("governorate_sentences") and trials that took place in a military court ("court_typeMilitary court"). Interpretations of these results are provided in the following section. First, I wanted to check the bootstrapped AUC and accuracy. To do that, I wrote a function that extracts the bootstrapped AUC for all 2000 samples and calculates the optimism (difference between in-sample and bootstrapped AUC) for each sample. We can then take the average optimism and subtract it from the overall in-sample /original AUC to obtain the overall bootstrapped AUC. As below, bootstrapped AUC for this model was .8011. (Non-bootstrapped AUC was only slightly higher, at .8013, eliminating worries about overfitting):
+
+```javascript
+library(ROCR)
+
+R = 2000
+n = nrow(EDPI2)
+
+# Build empty Rx2 matrix for bootstrap results 
+B = matrix(nrow = R, ncol = 2,
+           dimnames = list(paste('Sample',1:R),
+                           c("auc_orig","auc_boot")))
+
+for(i in 1:R){
+    
+[//]: # draw a random sample
+    obs.boot <- sample(x = 1:n, size = n, replace = T)
+    data.boot <- EDPI2[obs.boot, ]
+    
+[//]: # fit the model on bootstrap sample
+    boot_log_model <- glm(execution_status ~ + category_of_offence + governorate_sentences
+            + defendant_gender + court_type +
+            days_btwn_offence_and_crim_1_judgement, data = EDPI2, family = binomial (link = 'logit'))
+    
+[//]: # apply model to original data
+    prob1 = predict(boot_log_model, EDPI2, type='response')
+
+[//]: # Note that prediction() in ROCR has problems sometimes because there are other libraries with functions called prediction(), so make sure to write it as ROCR:prediction(). See here for more: https://stackoverflow.com/questions/39483744/rocr-library-prediction-function-error
+    pred1 = ROCR::prediction(prob1, EDPI2$execution_status)
+    auc1 = performance(pred1,"auc")@y.values[[1]][1]
+    B[i, 1] = auc1
+    
+[//]: # apply model to bootstrap data
+    prob2 = predict(boot_log_model, data.boot, type='response')
+[//]: # Note that prediction() in ROCR has problems sometimes because there are other libraries with functions called prediction(), so make sure to write it as ROCR:prediction(). See here for more:
+[//]: # https://stackoverflow.com/questions/39483744/rocr-library-prediction-function-error
+    pred2 = ROCR::prediction(prob2, data.boot$execution_status)
+    auc2 = performance(pred2,"auc")@y.values[[1]][1]
+    B[i, 2] = auc2
+}
+
+[//]: # Turn B into data frame
+B <- as.data.frame(B)
+
+[//]: # Create optimism column
+B$optimism <- B$auc_boot - B$auc_orig
+
+in_sample_auc <- mean(B$auc_orig)
+avg_AUC_bootstrap <- mean(B$auc_boot)
+avg_optimism <- mean(B$optimism)
+
+bootstrapped_auc = in_sample_auc - avg_optimism
+bootstrapped_auc
+```
+Finally, I wanted to check for multicollinearity, to ensure that my model did not have correlated predictor variables
+```javascript
+library(car)
+vif(boot_log_model)
+```
+Generally, VIF values below 5 indicate no multicollinearity, so it does not appear to be a problem here:
+
+<img src="images/edpi_vif.png?raw=true"/>
+
+
+
+### Interpreting results
+
+
 
 ### Testing for significance
 
